@@ -1,0 +1,138 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8battlehud01"]
+
+[ext_resource type="Script" path="res://scripts/ui/battle_hud.gd" id="1_hud"]
+
+[node name="BattleHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="TopBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 90.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TopBar/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="EnergyContainer" type="HBoxContainer" parent="TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnergyLabel" type="Label" parent="TopBar/MarginContainer/HBoxContainer/EnergyContainer"]
+layout_mode = 2
+text = "⚡ Năng lượng: 5 / 5"
+
+[node name="LevelContainer" type="HBoxContainer" parent="TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="LevelLabel" type="Label" parent="TopBar/MarginContainer/HBoxContainer/LevelContainer"]
+layout_mode = 2
+text = "CẤP: 0 / 30"
+
+[node name="PauseButton" type="Button" parent="TopBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+text = "⏸"
+
+[node name="BottomBar" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -180.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HealthSection" type="VBoxContainer" parent="BottomBar/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HealthLabel" type="Label" parent="BottomBar/VBoxContainer/HealthSection"]
+layout_mode = 2
+text = "MÁU CĂN CỨ: 100 / 100"
+
+[node name="HealthBar" type="ProgressBar" parent="BottomBar/VBoxContainer/HealthSection"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+
+[node name="HeroSlotsLabel" type="Label" parent="BottomBar/VBoxContainer"]
+layout_mode = 2
+text = "HERO ĐANG HOẠT ĐỘNG (TỐI ĐA 4)"
+
+[node name="HeroSlotsContainer" type="HBoxContainer" parent="BottomBar/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Slot1" type="PanelContainer" parent="BottomBar/VBoxContainer/HeroSlotsContainer"]
+custom_minimum_size = Vector2(140, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot1"]
+layout_mode = 2
+text = "Slot 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Slot2" type="PanelContainer" parent="BottomBar/VBoxContainer/HeroSlotsContainer"]
+custom_minimum_size = Vector2(140, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot2"]
+layout_mode = 2
+text = "Slot 2"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Slot3" type="PanelContainer" parent="BottomBar/VBoxContainer/HeroSlotsContainer"]
+custom_minimum_size = Vector2(140, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot3"]
+layout_mode = 2
+text = "Slot 3"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Slot4" type="PanelContainer" parent="BottomBar/VBoxContainer/HeroSlotsContainer"]
+custom_minimum_size = Vector2(140, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot4"]
+layout_mode = 2
+text = "Slot 4"
+horizontal_alignment = 1
+vertical_alignment = 1

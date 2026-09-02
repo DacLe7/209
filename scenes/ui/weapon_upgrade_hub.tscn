@@ -1,0 +1,194 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3weaponhub01"]
+
+[ext_resource type="Script" path="res://scripts/ui/weapon_upgrade_hub.gd" id="1_weapon_hub"]
+
+[node name="WeaponUpgradeHub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_weapon_hub")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.09, 0.1, 0.12, 1)
+
+[node name="Header" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 85.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Header/MarginContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Header/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "KHO VŨ KHÍ & NÂNG CẤP"
+
+[node name="GoldLabel" type="Label" parent="Header/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "💰 VÀNG: 1,500"
+
+[node name="Content" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 95.0
+offset_right = -20.0
+offset_bottom = -95.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TabBar" type="HBoxContainer" parent="Content/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RifleBtn" type="Button" parent="Content/MarginContainer/VBoxContainer/TabBar"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Súng Trường (Rifle)"
+
+[node name="ShotgunBtn" type="Button" parent="Content/MarginContainer/VBoxContainer/TabBar"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Súng Săn (Shotgun)"
+
+[node name="DetailCard" type="PanelContainer" parent="Content/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Content/MarginContainer/VBoxContainer/DetailCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="WeaponName" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Standard Rifle"
+
+[node name="LevelLabel" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "CẤP ĐỘ: 1 / 10"
+
+[node name="LevelProgressBar" type="ProgressBar" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+value = 10.0
+
+[node name="GridStats" type="GridContainer" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="TypeTitle" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Loại mục tiêu:"
+
+[node name="TypeVal" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Đơn mục tiêu (Single)"
+
+[node name="RangeTitle" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Tầm bắn:"
+
+[node name="RangeVal" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Tầm trung (Mid)"
+
+[node name="DamageTitle" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Sát thương:"
+
+[node name="DamageVal" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "8.0 (+1.5 cấp tiếp)"
+
+[node name="FireRateTitle" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "Tốc độ bắn:"
+
+[node name="FireRateVal" type="Label" parent="Content/MarginContainer/VBoxContainer/DetailCard/MarginContainer/VBoxContainer/GridStats"]
+layout_mode = 2
+text = "1.2 viên/giây (+0.1 cấp tiếp)"
+
+[node name="ActionContainer" type="HBoxContainer" parent="Content/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="UpgradeButton" type="Button" parent="Content/MarginContainer/VBoxContainer/ActionContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "NÂNG CẤP (100 VÀNG)"
+
+[node name="EquipButton" type="Button" parent="Content/MarginContainer/VBoxContainer/ActionContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ĐANG TRANG BỊ"
+
+[node name="NoticeLabel" type="Label" parent="Content/MarginContainer/VBoxContainer"]
+layout_mode = 2
+autowrap_mode = 3
+text = "WeaponSystem chưa hoàn thành — đây là giao diện mockup tĩnh để review layout."
+
+[node name="Footer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Footer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="BackButton" type="Button" parent="Footer/MarginContainer"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "QUAY LẠI CĂN CỨ"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/weapon_data.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+id = "rifle_standard"
+display_name = "Standard Rifle"
+target_type = 0
+range_type = 1
+base_damage = 8.0
+fire_rate = 1.2
+upgrade_cost_curve = Array[int]([100, 250, 500, 1000])

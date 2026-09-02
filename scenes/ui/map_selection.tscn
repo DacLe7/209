@@ -1,0 +1,256 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2mapselection01"]
+
+[ext_resource type="Script" path="res://scripts/ui/map_selection.gd" id="1_map_select"]
+
+[node name="MapSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_map_select")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.11, 1)
+
+[node name="Header" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 85.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Header/MarginContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Header/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "KHU VỰC CHIẾN ĐẤU"
+
+[node name="EnergyLabel" type="Label" parent="Header/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "⚡ NĂNG LƯỢNG: 5 / 5"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = -20.0
+offset_bottom = -130.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="StageCard1" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/StageCard1"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxInfo" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "MÀN 1: TIỀN ĐỒN HOANG TÀN"
+
+[node name="Desc" type="Label" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "30 Cấp quái dồn dập • Chi phí: 1 ⚡"
+
+[node name="Status" type="Label" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "Trạng thái: SẴN SÀNG"
+
+[node name="VBoxAction" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="ScrollContainer/VBoxContainer/StageCard1/MarginContainer/HBoxContainer/VBoxAction"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "XUẤT KÍCH"
+
+[node name="StageCard2" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/StageCard2"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxInfo" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "MÀN 2: THÀNH PHỐ ĐỔ NÁT"
+
+[node name="Desc" type="Label" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "30 Cấp quái • Khuyên dùng cấp 5+"
+
+[node name="Status" type="Label" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "Trạng thái: ĐÃ KHÓA"
+
+[node name="VBoxAction" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/VBoxContainer/StageCard2/MarginContainer/HBoxContainer/VBoxAction"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "🔒 KHÓA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StageCard3" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/StageCard3"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxInfo" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "MÀN 3: VÙNG ĐẤT NHIỄM ĐỘC"
+
+[node name="Desc" type="Label" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "30 Cấp quái • Khuyên dùng cấp 10+"
+
+[node name="Status" type="Label" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "Trạng thái: ĐÃ KHÓA"
+
+[node name="VBoxAction" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/VBoxContainer/StageCard3/MarginContainer/HBoxContainer/VBoxAction"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "🔒 KHÓA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StageCard4" type="PanelContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/StageCard4"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxInfo" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "MÀN 4: LÕI NĂNG LƯỢNG NGẦM"
+
+[node name="Desc" type="Label" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "30 Cấp quái • Khuyên dùng cấp 15+"
+
+[node name="Status" type="Label" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer/VBoxInfo"]
+layout_mode = 2
+text = "Trạng thái: ĐÃ KHÓA"
+
+[node name="VBoxAction" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/VBoxContainer/StageCard4/MarginContainer/HBoxContainer/VBoxAction"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "🔒 KHÓA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Footer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -115.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Footer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Footer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatusLabel" type="Label" parent="Footer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="Footer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "QUAY LẠI TRẠM CHÍNH"

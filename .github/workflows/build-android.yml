@@ -1,0 +1,89 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Export Android APK
+    runs-on: ubuntu-latest
+
+    env:
+      GODOT_VERSION: "4.7.2"
+      GODOT_RELEASE_TYPE: "stable"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK Components
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+
+      - name: Generate Android Debug Keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore ~/.android/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
+      - name: Download & Setup Godot ${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE_TYPE }} Headless
+        run: |
+          GODOT_PKG="Godot_v${GODOT_VERSION}-${GODOT_RELEASE_TYPE}_linux.x86_64"
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE_TYPE}/${GODOT_PKG}.zip" -O godot_linux.zip
+          unzip -q godot_linux.zip
+          sudo mv "${GODOT_PKG}" /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          rm -f godot_linux.zip
+          godot --version
+
+      - name: Download & Setup Godot Export Templates
+        run: |
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE_TYPE}"
+          mkdir -p "$TEMPLATE_DIR"
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE_TYPE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE_TYPE}_export_templates.tpz" -O godot_templates.tpz
+          unzip -q godot_templates.tpz
+          mv templates/* "$TEMPLATE_DIR/"
+          rm -rf templates godot_templates.tpz
+          ls -la "$TEMPLATE_DIR"
+
+      - name: Configure Godot Editor Settings for Android Export
+        run: |
+          CONFIG_DIR="$HOME/.config/godot"
+          mkdir -p "$CONFIG_DIR"
+          cat <<EOF > "$CONFIG_DIR/editor_settings-4.tres"
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/android/android_sdk_path = "$ANDROID_HOME"
+export/android/debug_keystore = "$HOME/.android/debug.keystore"
+export/android/debug_keystore_user = "androiddebugkey"
+export/android/debug_keystore_pass = "android"
+export/android/force_system_user = false
+EOF
+          cp "$CONFIG_DIR/editor_settings-4.tres" "$CONFIG_DIR/editor_settings-4.7.tres"
+
+      - name: Export Android APK (Unsigned / Debug)
+        run: |
+          mkdir -p build/android
+          godot --headless --export-debug "Android" build/android/post-apoc-defense-unsigned.apk
+          ls -lh build/android/
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-apoc-defense-unsigned-apk
+          path: build/android/*.apk
+          retention-days: 14

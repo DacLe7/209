@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HeroData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/hero_data.gd" id="1_hero"]
+
+[resource]
+script = ExtResource("1_hero")
+id = "commander_sarah"
+display_name = "Commander Sarah"
+max_level_per_run = 15
+stat_growth_per_level = 1.15
