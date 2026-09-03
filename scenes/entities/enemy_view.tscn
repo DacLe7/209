@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://b8enemyview01"]
+
+[node name="EnemyView" type="Node2D"]
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.9, 0.22, 0.22, 1)
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[node name="Core" type="Polygon2D" parent="."]
+color = Color(1, 0.75, 0.75, 1)
+polygon = PackedVector2Array(-6, -6, 6, -6, 6, 6, -6, 6)

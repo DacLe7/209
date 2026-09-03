@@ -1,6 +1,6 @@
 extends Node
 
-signal enemy_spawned(enemy: Node2D, tier: int)
+signal enemy_spawned(enemy: Node)
 signal enemy_killed(exp_value: int)
 signal enemy_reached_base(damage: float)
 
@@ -88,14 +88,14 @@ func _advance_batch(batch: Dictionary, delta: float) -> void:
 		_spawn_enemy(enemy_data, batch["tier"])
 
 
-func _spawn_enemy(enemy_data: EnemyData, tier: int) -> Node2D:
+func _spawn_enemy(enemy_data: EnemyData, _tier: int) -> Node2D:
 	var enemy: Node2D = ENEMY_SCRIPT.new()
 	enemy.initialize(enemy_data)
 	enemy.set_waypoints(path_waypoints)
 	enemy.died.connect(_on_enemy_died)
 	enemy.reached_base.connect(_on_enemy_reached_base)
 	add_child(enemy)
-	enemy_spawned.emit(enemy, tier)
+	enemy_spawned.emit(enemy)
 	return enemy
 
 

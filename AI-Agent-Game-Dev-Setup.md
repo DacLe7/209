@@ -176,6 +176,13 @@ Task chỉ được coi là hoàn thành khi agent **tự thực hiện và dán
 **Agent không được tự merge hoặc coi task là "đóng" nếu chưa đưa ra đủ 4 mục trên.** Nếu người dùng phát hiện thiếu sót sau khi agent đã báo "xong", agent phải coi đây là lỗi nghiêm trọng của chính nó, không đổ lỗi cho việc yêu cầu chưa rõ (trừ khi thực sự chưa rõ và agent đã hỏi lại từ đầu mà không được trả lời).
 
 ## Git
+
+## Quy tắc riêng cho Antigravity (đúc kết từ sự cố thực tế trong dự án)
+
+- **Antigravity PHẢI dừng lại sau khi trình bày plan**, chờ người dùng gõ rõ ràng "duyệt" / "tiến hành" mới được thực thi. Nếu IDE của Antigravity có cơ chế tự động chạy tiếp sau khi tạo plan (từng xảy ra thực tế, log hiện "Auto-proceeded with Implementation Plan"), Antigravity phải **chủ động báo cho người dùng biết việc này đang xảy ra** và đề nghị tắt đi — không được lợi dụng cơ chế đó để bỏ qua bước chờ duyệt. Việc "task lớn phải chờ duyệt" ở mục "Quy trình khi nhận task" áp dụng cho Antigravity nghiêm ngặt hơn Codex, vì Antigravity hay đụng vào nhiều file scene/script cùng lúc.
+- **Antigravity KHÔNG được tự chạy lệnh `git`** (`checkout`, `add`, `commit`, `push`) trong môi trường này — đã xác nhận thực tế: sandbox Windows chặn quyền truy cập ổ hệ thống khi Antigravity gọi `run_command` cho git/shell. Antigravity chỉ cần liệt kê đầy đủ, chính xác file đã tạo/sửa trong báo cáo Definition of Done; người dùng sẽ tự chạy git. Antigravity không được hứa "sẽ tự commit" hay báo commit đã xong nếu chưa thực sự chạy được lệnh — nếu lệnh thất bại, phải báo thất bại rõ ràng ngay, không im lặng bỏ qua.
+
+## Git
 - Nhánh: `feature/<ten-tinh-nang>`, `fix/<ten-bug>`
 - Commit message: `[loại] mô tả ngắn` — ví dụ: `[feat] thêm hệ thống inventory`, `[fix] sửa lỗi save game bị mất item`
 - Không commit trực tiếp vào `main`
@@ -265,6 +272,18 @@ File `.github/workflows/build-android.yml` gợi ý luồng: mỗi khi push lên
 Nguyên tắc: **Codex động vào mọi logic gameplay/core system**. **Antigravity chỉ làm việc không thể phá vỡ game nếu làm sai** — test, asset, docs, CI, mockup tĩnh. Antigravity không được sửa file trong `scripts/systems/` hay `scripts/entities/`.
 
 ### 7.1 Codex — Sprint 1: nền tảng core loop
+
+**Tiến độ thực tế (không phải kế hoạch — đã hoàn thành và review kỹ từng file):**
+1. ✅ Project scaffold — Antigravity Phase 0
+2. ✅ EnergySystem
+3. ✅ BaseHealthSystem
+4. ✅ Enemy entity (bổ sung, không có trong list gốc — cần thiết trước WaveManager)
+5. ✅ WaveManager
+6. ✅ LevelSystem
+7. ✅ GameState (điều phối thua/thắng/retry — bổ sung, không có trong list gốc, cần thiết để nối các system lại)
+8. ⏳ HeroSystem — đang giao
+9. ⬜ WeaponSystem
+10. ⬜ SaveSystem
 
 Giao lần lượt, mỗi task là 1 nhánh `feature/...` riêng, review xong mới sang task tiếp:
 

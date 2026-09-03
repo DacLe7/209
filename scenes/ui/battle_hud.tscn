@@ -100,7 +100,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot1"]
 layout_mode = 2
-text = "Slot 1"
+text = "[Trống]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -111,7 +111,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot2"]
 layout_mode = 2
-text = "Slot 2"
+text = "[Trống]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -122,7 +122,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot3"]
 layout_mode = 2
-text = "Slot 3"
+text = "[Trống]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -133,6 +133,6 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="BottomBar/VBoxContainer/HeroSlotsContainer/Slot4"]
 layout_mode = 2
-text = "Slot 4"
+text = "[Trống]"
 horizontal_alignment = 1
 vertical_alignment = 1

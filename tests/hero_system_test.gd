@@ -9,7 +9,7 @@ func run() -> void:
 	_test_roster_loads_unique_hero_data()
 	_test_level_up_activates_then_upgrades_when_only_one_action_is_possible()
 	_test_active_hero_limit_blocks_additional_activation()
-	_test_reset_run_clears_active_heroes()
+	_test_reset_run_clears_active_heroes_and_emits_signal()
 
 
 func _test_roster_loads_unique_hero_data() -> void:
@@ -59,11 +59,17 @@ func _test_active_hero_limit_blocks_additional_activation() -> void:
 	hero_system.free()
 
 
-func _test_reset_run_clears_active_heroes() -> void:
+func _test_reset_run_clears_active_heroes_and_emits_signal() -> void:
 	var hero_system: Variant = _create_hero_system()
 	hero_system.active_heroes = {"alpha": 2, "bravo": 1}
+	var reset_count := [0]
+	hero_system.run_reset.connect(func() -> void:
+		reset_count[0] += 1
+	)
+
 	hero_system.reset_run()
 	_assert(hero_system.active_heroes.is_empty(), "Reset should clear every active hero for a new run.")
+	_assert(reset_count[0] == 1, "Reset should emit run_reset after clearing active heroes.")
 	hero_system.free()
 
 

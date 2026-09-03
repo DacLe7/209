@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3 uid="uid://e4resultoverlay01"]
+
+[ext_resource type="Script" path="res://scripts/ui/run_result_overlay.gd" id="1_result_overlay"]
+
+[node name="RunResultOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_result_overlay")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.07, 0.88)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultPanel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(560, 300)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/ResultPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/ResultPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "KẾT QUẢ TRẬN ĐẤU"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Mô tả kết quả trận đấu"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ActionsContainer" type="VBoxContainer" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RetryButton" type="Button" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer/ActionsContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+text = "THỬ LẠI"
+
+[node name="BackToMapButton" type="Button" parent="CenterContainer/ResultPanel/MarginContainer/VBoxContainer/ActionsContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+text = "VỀ BẢN ĐỒ CHIẾN ĐẤU"

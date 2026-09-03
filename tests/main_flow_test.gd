@@ -1,0 +1,134 @@
+class_name MainFlowTest
+extends RefCounted
+
+const MAIN_SCENE := preload("res://scenes/core/main.tscn")
+const BATTLE_ARENA_SCENE := preload("res://scenes/core/battle_arena.tscn")
+const ENEMY_SCRIPT := preload("res://scripts/entities/enemy.gd")
+
+const WAVE_MANAGER_SCRIPT := preload("res://scripts/systems/wave_manager.gd")
+const GAME_STATE_SCRIPT := preload("res://scripts/autoload/game_state.gd")
+const BASE_HEALTH_SYSTEM_SCRIPT := preload("res://scripts/systems/base_health_system.gd")
+const LEVEL_SYSTEM_SCRIPT := preload("res://scripts/systems/level_system.gd")
+const HERO_SYSTEM_SCRIPT := preload("res://scripts/systems/hero_system.gd")
+
+
+func run(tree: SceneTree = null) -> void:
+	_test_main_boots_into_map_selection(tree)
+	_test_main_transitions_to_battle_arena(tree)
+	_test_battle_arena_initialization_and_waypoints(tree)
+	_test_enemy_spawn_attaches_visual(tree)
+	_test_back_to_map_routing(tree)
+
+
+func _test_main_boots_into_map_selection(tree: SceneTree) -> void:
+	var main: Variant = MAIN_SCENE.instantiate()
+	if tree != null and tree.root != null:
+		tree.root.add_child(main)
+	main._ready()
+
+	_assert(main.current_view != null, "Main should have a current view on boot.")
+	_assert(main.current_view is MapSelection, "Main should boot into MapSelection.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(main)
+	main.free()
+
+
+func _test_main_transitions_to_battle_arena(tree: SceneTree) -> void:
+	var main: Variant = MAIN_SCENE.instantiate()
+	if tree != null and tree.root != null:
+		tree.root.add_child(main)
+	main._ready()
+
+	# Chuyển sang trận đấu
+	main.start_battle(1)
+	_assert(main.current_view != null, "Main should have current view after start_battle.")
+	_assert(main.current_view is BattleArena, "Current view should be BattleArena.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(main)
+	main.free()
+
+
+func _test_battle_arena_initialization_and_waypoints(tree: SceneTree) -> void:
+	var wave_mgr: Variant = WAVE_MANAGER_SCRIPT.new()
+	var game_state: Variant = GAME_STATE_SCRIPT.new()
+
+	var arena: Variant = BATTLE_ARENA_SCENE.instantiate()
+	arena.wave_manager = wave_mgr
+	arena.game_state = game_state
+
+	if tree != null and tree.root != null:
+		tree.root.add_child(arena)
+	arena._ready()
+
+	_assert(arena.path_line != null, "BattleArena should have a PathLine.")
+	_assert(arena.base_view != null, "BattleArena should have a BaseView.")
+	_assert(arena.hud != null, "BattleArena should have a BattleHUD.")
+	_assert(arena.result_overlay != null, "BattleArena should have a RunResultOverlay.")
+
+	# Waypoints gán cho WaveManager
+	_assert(wave_mgr.path_waypoints.size() == 2, "WaveManager should receive waypoints.")
+	_assert(wave_mgr.path_waypoints == arena.waypoints, "Waypoints in WaveManager should match arena.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(arena)
+	arena.free()
+	game_state.free()
+	wave_mgr.free()
+
+
+func _test_enemy_spawn_attaches_visual(tree: SceneTree) -> void:
+	var wave_mgr: Variant = WAVE_MANAGER_SCRIPT.new()
+	var game_state: Variant = GAME_STATE_SCRIPT.new()
+
+	var arena: Variant = BATTLE_ARENA_SCENE.instantiate()
+	arena.wave_manager = wave_mgr
+	arena.game_state = game_state
+
+	if tree != null and tree.root != null:
+		tree.root.add_child(arena)
+	arena._ready()
+
+	var enemy: Variant = ENEMY_SCRIPT.new()
+	_assert(enemy.get_child_count() == 0, "Enemy initially has no visual children.")
+
+	# Giả lập WaveManager phát enemy_spawned
+	wave_mgr.enemy_spawned.emit(enemy)
+	_assert(enemy.get_child_count() > 0, "Enemy should have visual child attached after enemy_spawned.")
+	var visual: Node = enemy.get_child(0)
+	_assert(visual.has_node("Body"), "Attached visual should have Body polygon.")
+
+	enemy.free()
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(arena)
+	arena.free()
+	game_state.free()
+	wave_mgr.free()
+
+
+func _test_back_to_map_routing(tree: SceneTree) -> void:
+	var main: Variant = MAIN_SCENE.instantiate()
+	if tree != null and tree.root != null:
+		tree.root.add_child(main)
+	main._ready()
+
+	# Sang battle arena
+	main.start_battle(1)
+	_assert(main.current_view is BattleArena, "Should be in BattleArena.")
+
+	# Bấm về bản đồ
+	var arena: Variant = main.current_view
+	arena._on_back_to_map_pressed()
+	_assert(main.current_view is MapSelection, "Should route back to MapSelection.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(main)
+	main.free()
+
+
+func _assert(condition: bool, message: String) -> void:
+	if not condition:
+		push_error(message)
+		assert(condition, message)

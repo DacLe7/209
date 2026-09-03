@@ -32,6 +32,7 @@ func _test_damage_emits_died_once() -> void:
 	_assert(enemy.current_hp == 7.0, "Damage should reduce the enemy HP.")
 	enemy.take_damage(100.0)
 	_assert(enemy.current_hp == 0.0, "Damage must not reduce enemy HP below zero.")
+	_assert(enemy.is_queued_for_deletion(), "Enemy should queue itself for deletion after emitting died.")
 	enemy.take_damage(1.0)
 	_assert(emitted_exp_values == [7], "Enemy death should emit its EXP value exactly once.")
 	enemy.free()

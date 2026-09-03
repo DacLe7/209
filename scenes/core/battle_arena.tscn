@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://b2arena001"]
+
+[ext_resource type="Script" path="res://scripts/core/battle_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://scenes/core/base_view.tscn" id="2_base"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/run_result_overlay.tscn" id="4_overlay"]
+
+[node name="BattleArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(720, 1280)
+offset_right = 720.0
+offset_bottom = 1280.0
+mouse_filter = 2
+color = Color(0.06, 0.08, 0.1, 1)
+
+[node name="PathLine" type="Line2D" parent="."]
+points = PackedVector2Array(360, 80, 360, 1060)
+width = 8.0
+default_color = Color(0.25, 0.3, 0.38, 0.6)
+
+[node name="BaseView" parent="." instance=ExtResource("2_base")]
+position = Vector2(360, 1060)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="BattleHUD" parent="UILayer" instance=ExtResource("3_hud")]
+
+[node name="RunResultOverlay" parent="UILayer" instance=ExtResource("4_overlay")]

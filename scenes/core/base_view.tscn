@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://c5baseview01"]
+
+[node name="BaseView" type="Node2D"]
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.18, 0.52, 0.92, 1)
+polygon = PackedVector2Array(-40, -40, 40, -40, 40, 40, -40, 40)
+
+[node name="Inner" type="Polygon2D" parent="."]
+color = Color(0.35, 0.72, 1, 1)
+polygon = PackedVector2Array(-24, -24, 24, -24, 24, 24, -24, 24)
+
+[node name="BaseLabel" type="Label" parent="."]
+offset_left = -30.0
+offset_top = -12.0
+offset_right = 30.0
+offset_bottom = 12.0
+text = "BASE"
+horizontal_alignment = 1
+vertical_alignment = 1

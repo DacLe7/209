@@ -8,6 +8,7 @@ const BASE_HEALTH_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/base_he
 func run() -> void:
 	_test_new_wave_manager_does_not_start_wave()
 	_test_tier_spawns_the_expected_enemy_count()
+	_test_enemy_spawned_signal_matches_spawn_count()
 	_test_next_tier_starts_while_previous_batch_is_active()
 	_test_enemy_signals_are_relayed_to_systems()
 	_test_no_batches_are_created_after_tier_thirty()
@@ -21,6 +22,26 @@ func _test_tier_spawns_the_expected_enemy_count() -> void:
 	_assert(wave_manager.active_spawn_batches[0]["tier"] == 1, "The first batch should be tier one.")
 	_assert(wave_manager.active_spawn_batches[0]["spawned_count"] == 4, "Tier one should schedule four grunts.")
 	_assert(wave_manager.get_child_count() == 4, "Tier one should spawn 3 + tier grunt enemies.")
+	wave_manager.clear_wave()
+	wave_manager.free()
+	base_health_system.free()
+
+
+func _test_enemy_spawned_signal_matches_spawn_count() -> void:
+	var wave_manager: Variant = _create_wave_manager()
+	var base_health_system: Node = wave_manager.base_health_system
+	var spawned_enemies: Array[Node] = []
+	wave_manager.enemy_spawned.connect(func(enemy: Node) -> void:
+		spawned_enemies.append(enemy)
+	)
+
+	wave_manager.advance_time(5.0)
+	var all_spawned_enemies_are_children := true
+	for enemy in spawned_enemies:
+		if enemy.get_parent() != wave_manager:
+			all_spawned_enemies_are_children = false
+	_assert(spawned_enemies.size() == 2, "Enemy spawned signal should fire once for each enemy spawned during advance_time.")
+	_assert(all_spawned_enemies_are_children, "Enemy spawned signal should provide the spawned child instance.")
 	wave_manager.clear_wave()
 	wave_manager.free()
 	base_health_system.free()

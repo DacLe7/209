@@ -2,6 +2,7 @@ extends Node
 
 signal hero_activated(hero_id: String, level: int)
 signal hero_upgraded(hero_id: String, new_level: int)
+signal run_reset
 
 const MAX_ACTIVE_HEROES := 4
 const HERO_DATA_DIRECTORY := "res://data/heroes"
@@ -43,6 +44,7 @@ func load_roster() -> void:
 
 func reset_run() -> void:
 	active_heroes.clear()
+	run_reset.emit()
 
 
 func _on_level_up(_new_level: int) -> void:

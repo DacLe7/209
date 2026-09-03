@@ -45,6 +45,7 @@ func take_damage(amount: float) -> void:
 	if current_hp == 0.0 and not _has_died:
 		_has_died = true
 		died.emit(exp_value)
+		queue_free()
 
 
 func move_along_path(delta: float) -> void:

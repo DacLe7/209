@@ -13,7 +13,7 @@ var energy_system: Node
 
 func _ready() -> void:
 	_cache_nodes()
-	if energy_system == null:
+	if is_inside_tree() and energy_system == null:
 		energy_system = get_node_or_null("/root/EnergySystem")
 	_update_energy_display()
 
