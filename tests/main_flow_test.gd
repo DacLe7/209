@@ -71,6 +71,14 @@ func _test_battle_arena_initialization_and_waypoints(tree: SceneTree) -> void:
 	_assert(wave_mgr.path_waypoints.size() == 2, "WaveManager should receive waypoints.")
 	_assert(wave_mgr.path_waypoints == arena.waypoints, "Waypoints in WaveManager should match arena.")
 
+	# Kiểm tra z_index đảm bảo quái và các thực thể không bị che lấp
+	var bg: ColorRect = arena.get_node_or_null("Background") as ColorRect
+	_assert(bg != null, "BattleArena should have a Background node.")
+	_assert(bg.z_index == -10, "Background must have z_index = -10 to always render behind autoload nodes.")
+	_assert(arena.path_line.z_index == -5, "PathLine must have z_index = -5.")
+	_assert(bg.z_index < arena.path_line.z_index, "Background must render behind PathLine.")
+	_assert(arena.path_line.z_index < arena.base_view.z_index or arena.path_line.z_index < 0, "PathLine must render behind BaseView and Enemy entities (z_index >= 0).")
+
 	if tree != null and tree.root != null:
 		tree.root.remove_child(arena)
 	arena.free()

@@ -2,6 +2,12 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Battle Arena Z-Index Layering Fix] - 2026-09-05
+### Đã sửa
+- Gán `z_index = -10` cho node `Background` trong `scenes/core/battle_arena.tscn` để luôn vẽ ở lớp dưới cùng, không che lấp quái sinh ra từ autoload `WaveManager`.
+- Gán `z_index = -5` cho node `PathLine` trong `scenes/core/battle_arena.tscn` để đường đi hiển thị trên nền nhưng nằm dưới quái và trụ căn cứ (`z_index = 0`).
+- Thêm kiểm tra khẳng định phân tầng `z_index` trong `tests/main_flow_test.gd`.
+
 ## [Enemy View Pure Node2D Visual] - 2026-09-03
 ### Đã thay đổi
 - Bỏ script `enemy.gd` khỏi root của `scenes/entities/enemy_view.tscn`, biến scene thành `Node2D` thuần túy chứa 2 polygon visual `Body` và `Core`.
