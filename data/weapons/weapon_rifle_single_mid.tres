@@ -8,6 +8,7 @@ id = "rifle_standard"
 display_name = "Standard Rifle"
 target_type = 0
 range_type = 1
+range_distance = 450.0
 base_damage = 8.0
 fire_rate = 1.2
 upgrade_cost_curve = Array[int]([100, 250, 500, 1000])

@@ -3,10 +3,14 @@ extends Node
 signal run_failed
 signal run_completed
 
+const STAGE_COMPLETION_GOLD_REWARD := 150
+
 var base_health_system: Node
 var wave_manager: Node
 var level_system: Node
 var hero_system: Node
+var weapon_system: Node
+var _stage_completed := false
 
 
 func _ready() -> void:
@@ -14,6 +18,7 @@ func _ready() -> void:
 	wave_manager = get_node_or_null("/root/WaveManager")
 	level_system = get_node_or_null("/root/LevelSystem")
 	hero_system = get_node_or_null("/root/HeroSystem")
+	weapon_system = get_node_or_null("/root/WeaponSystem")
 	_connect_dependencies()
 
 
@@ -32,12 +37,19 @@ func _on_base_defeated() -> void:
 
 
 func _on_stage_cleared() -> void:
+	if _stage_completed:
+		return
+
+	_stage_completed = true
 	if wave_manager != null:
 		wave_manager.clear_wave()
+	if weapon_system != null:
+		weapon_system.add_gold(STAGE_COMPLETION_GOLD_REWARD)
 	run_completed.emit()
 
 
 func _reset_and_start_stage() -> void:
+	_stage_completed = false
 	if base_health_system != null:
 		base_health_system.reset_health()
 	if level_system != null:

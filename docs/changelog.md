@@ -2,6 +2,40 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Weapon Upgrade Hub Gold Exploit Fix] - 2026-09-05
+### Đã sửa
+- Xóa bỏ logic placeholder tự gán `current_gold = 1000` trong `_ready()` và `_show_weapon()` của `scripts/ui/weapon_upgrade_hub.gd`, ngăn chặn lỗ hổng nhận 1000 vàng miễn phí vô hạn khi tiêu cạn vàng.
+- Kết nối signal `WeaponSystem.gold_changed` trong `weapon_upgrade_hub.gd` để tự động cập nhật số dư vàng khi nhận thưởng từ gameplay.
+- Chuyển fixture thiết lập vàng test vào `tests/ui_system_test.gd`, bổ sung kiểm tra chống hồi quy cho số dư vàng ban đầu và signal `gold_changed`.
+
+## [Stage Completion Gold Reward] - 2026-09-05
+### Đã thêm
+- GameState thưởng cố định 150 vàng đúng một lần khi hoàn thành màn, trước khi phát `run_completed`.
+- WeaponSystem bổ sung `add_gold()` và signal `gold_changed` để UI và SaveSystem tái sử dụng.
+- Thêm kiểm tra headless cho tín hiệu vàng, thưởng thắng màn một lần và retry không tự thưởng vàng.
+
+## [Weapon Equip Binding & Hero Sync] - 2026-09-05
+### Đã thêm
+- Kết nối nút "TRANG BỊ" trong `scripts/ui/weapon_upgrade_hub.gd` với `WeaponSystem.set_equipped_weapon()`, lắng nghe signal `weapon_equipped` để cập nhật trạng thái nút ("ĐANG TRANG BỊ" / "TRANG BỊ").
+- Đồng bộ vũ khí trang bị từ `WeaponSystem` sang `MainHero` trong `scripts/core/battle_arena.gd` tại `_ready()` và qua signal `weapon_equipped`.
+- Bổ sung unit test headless trong `tests/ui_system_test.gd` và `tests/main_flow_test.gd`.
+
+## [Main Hero Visual Polygons] - 2026-09-05
+### Đã thêm
+- Thêm visual gồm 2 Polygon2D (`Body` hình thoi xanh lá và `Core` xanh mint sáng) trực tiếp vào node `MainHero` trong `scenes/core/battle_arena.tscn`.
+- Thêm kiểm tra khẳng định trong `tests/main_flow_test.gd` đảm bảo `MainHero` có đủ 2 node visual `Body` và `Core` mang màu sắc xanh lá.
+
+## [Equipped Weapon State] - 2026-09-05
+### Đã thêm
+- WeaponSystem lưu vũ khí đang trang bị, hỗ trợ chọn vũ khí hợp lệ và phát signal cập nhật.
+- Thêm unit test headless cho equip thành công/thất bại và signal.
+
+## [Main Hero Combat] - 2026-09-05
+### Đã thêm
+- Thêm range data cho vũ khí và MainHero tự động tấn công quái theo fire rate, target type và range.
+- WaveManager cung cấp danh sách quái active cho combat.
+- Thêm unit test headless cho nhịp bắn, target đơn/đa và giới hạn tầm bắn.
+
 ## [Battle Arena Z-Index Layering Fix] - 2026-09-05
 ### Đã sửa
 - Gán `z_index = -10` cho node `Background` trong `scenes/core/battle_arena.tscn` để luôn vẽ ở lớp dưới cùng, không che lấp quái sinh ra từ autoload `WaveManager`.

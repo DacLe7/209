@@ -6,6 +6,8 @@ const WEAPON_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/weapon_syste
 
 func run() -> void:
 	_test_roster_loads_all_sample_weapons()
+	_test_equipping_known_weapon_updates_state_and_emits_signal()
+	_test_add_gold_updates_balance_and_emits_signal()
 	_test_upgrade_deducts_gold_and_emits_signal()
 	_test_stats_scale_linearly_with_level()
 	_test_upgrade_fails_without_gold_or_after_max_level()
@@ -16,6 +18,35 @@ func _test_roster_loads_all_sample_weapons() -> void:
 	_assert(weapon_system.roster.size() == 2, "Weapon roster should load both sample WeaponData resources.")
 	_assert(weapon_system.weapon_levels["rifle_standard"] == 0, "Loaded weapons should start at upgrade level zero.")
 	_assert(weapon_system.weapon_levels["shotgun_breach"] == 0, "Each roster weapon should receive its own level state.")
+	weapon_system.free()
+
+
+func _test_equipping_known_weapon_updates_state_and_emits_signal() -> void:
+	var weapon_system: Variant = _create_weapon_system()
+	var equipped_weapon_ids: Array[String] = []
+	weapon_system.weapon_equipped.connect(func(weapon_id: String) -> void:
+		equipped_weapon_ids.append(weapon_id)
+	)
+
+	_assert(weapon_system.set_equipped_weapon("shotgun_breach"), "Equipping a roster weapon should succeed.")
+	_assert(weapon_system.equipped_weapon_id == "shotgun_breach", "Equipping should update the active weapon ID.")
+	_assert(equipped_weapon_ids == ["shotgun_breach"], "Equipping should emit the selected weapon ID.")
+	_assert(not weapon_system.set_equipped_weapon("unknown"), "Equipping an unknown weapon should fail.")
+	_assert(weapon_system.equipped_weapon_id == "shotgun_breach", "Failed equip should preserve the current weapon ID.")
+	weapon_system.free()
+
+
+func _test_add_gold_updates_balance_and_emits_signal() -> void:
+	var weapon_system: Variant = _create_weapon_system()
+	var reported_balances: Array[int] = []
+	weapon_system.gold_changed.connect(func(new_gold: int) -> void:
+		reported_balances.append(new_gold)
+	)
+
+	weapon_system.add_gold(150)
+	weapon_system.add_gold(0)
+	_assert(weapon_system.current_gold == 150, "Adding positive gold should increase the balance.")
+	_assert(reported_balances == [150], "Only a positive gold change should emit the updated balance.")
 	weapon_system.free()
 
 

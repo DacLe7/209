@@ -192,7 +192,7 @@ func _test_run_result_overlay(tree: SceneTree) -> void:
 func _test_weapon_hub_interactions(tree: SceneTree) -> void:
 	var weapon_sys: Variant = WEAPON_SYSTEM_SCRIPT.new()
 	weapon_sys.load_roster()
-	weapon_sys.current_gold = 500
+	weapon_sys.current_gold = 0
 
 	var hub: Variant = WEAPON_HUB_SCENE.instantiate()
 	hub.weapon_system = weapon_sys
@@ -200,6 +200,14 @@ func _test_weapon_hub_interactions(tree: SceneTree) -> void:
 	if tree != null and tree.root != null:
 		tree.root.add_child(hub)
 	hub._ready()
+
+	# Khẳng định không có lỗ hổng tự tặng 1000 vàng khi gold == 0
+	_assert(weapon_sys.current_gold == 0, "WeaponSystem gold must stay 0, Hub must not give free 1000 gold.")
+	_assert(hub.gold_label.text == "💰 VÀNG: 0", "Gold label should display 0 initially.")
+
+	# Thiết lập fixture vàng cho test nâng cấp
+	weapon_sys.current_gold = 500
+	hub._show_weapon(0)
 
 	_assert(hub.weapon_title.text == "Standard Rifle", "Initial weapon should be Standard Rifle.")
 	_assert(hub.type_label.text.contains("Single"), "Rifle should be Single target.")
@@ -235,6 +243,37 @@ func _test_weapon_hub_interactions(tree: SceneTree) -> void:
 	weapon_sys.weapon_levels["shotgun_breach"] = 2
 	weapon_sys.weapon_upgraded.emit("shotgun_breach", 2)
 	_assert(hub.level_label.text.contains("2 / 4"), "External weapon_upgraded signal should update UI.")
+
+	# Kiểm tra trạng thái nút trang bị ban đầu (Rifle)
+	hub._select_rifle()
+	_assert(hub.equip_button.text == "ĐANG TRANG BỊ", "Rifle initial equip button should say ĐANG TRANG BỊ.")
+	_assert(hub.equip_button.disabled, "Rifle equip button should be disabled when already equipped.")
+
+	# Chuyển sang shotgun: chưa trang bị nên nút mở
+	hub._select_shotgun()
+	_assert(hub.equip_button.text == "TRANG BỊ", "Shotgun equip button should say TRANG BỊ.")
+	_assert(not hub.equip_button.disabled, "Shotgun equip button should not be disabled.")
+
+	# Bấm nút TRANG BỊ
+	hub._on_equip_pressed()
+	_assert(weapon_sys.equipped_weapon_id == "shotgun_breach", "WeaponSystem equipped_weapon_id should be shotgun_breach.")
+	_assert(hub.equip_button.text == "ĐANG TRANG BỊ", "Shotgun equip button should now say ĐANG TRANG BỊ.")
+	_assert(hub.equip_button.disabled, "Shotgun equip button should be disabled after equipping.")
+	_assert(hub.notice_label.text.contains("Đã trang bị"), "Notice label should notify successful equip.")
+
+	# Chuyển lại rifle: lúc này rifle thành chưa trang bị
+	hub._select_rifle()
+	_assert(hub.equip_button.text == "TRANG BỊ", "Rifle equip button should now say TRANG BỊ.")
+	_assert(not hub.equip_button.disabled, "Rifle equip button should not be disabled after swapping.")
+
+	# Kiểm tra lắng nghe weapon_equipped phát từ bên ngoài
+	weapon_sys.set_equipped_weapon("rifle_standard")
+	_assert(hub.equip_button.text == "ĐANG TRANG BỊ", "UI should reflect external weapon_equipped signal.")
+	_assert(hub.equip_button.disabled, "Rifle equip button should be disabled after external equip.")
+
+	# Kiểm tra lắng nghe gold_changed cập nhật UI
+	weapon_sys.add_gold(150)
+	_assert(hub.gold_label.text.contains(str(weapon_sys.current_gold)), "UI should reflect gold_changed signal.")
 
 	if tree != null and tree.root != null:
 		tree.root.remove_child(hub)

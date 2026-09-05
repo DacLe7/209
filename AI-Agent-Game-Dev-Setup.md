@@ -173,6 +173,8 @@ Task chỉ được coi là hoàn thành khi agent **tự thực hiện và dán
 3. **Xác nhận đã đọc lại nội dung file vừa tạo** — không chỉ chạy lệnh tạo file rồi tin là đúng, phải `view`/`cat` lại ít nhất những file quan trọng để confirm nội dung khớp yêu cầu (đúng field, đúng comment TODO, không lẫn logic vào file scaffold...)
 4. **Nêu rõ điều gì CHƯA làm hoặc cần người review quyết định** — nếu có phần nào mơ hồ mà agent tự chọn 1 phương án, phải nói rõ đã tự quyết gì, để người dùng biết mà kiểm tra lại
 
+**Bắt buộc dán nguyên văn nội dung file trong báo cáo**: với mọi file mới tạo hoặc sửa nằm trong `scripts/systems/`, `scripts/entities/`, hoặc bất kỳ file nào chứa logic quan trọng, agent phải dán **toàn bộ nội dung file** (dạng code block) ngay trong câu trả lời — không chỉ mô tả bằng lời rồi để người dùng tự mở/tự upload lại. Việc mô tả "đã làm X, đã làm Y" không thay thế được việc cho xem code thật. Chỉ được phép tóm tắt (không dán full) với các file phụ ít rủi ro như `changelog.md`.
+
 **Agent không được tự merge hoặc coi task là "đóng" nếu chưa đưa ra đủ 4 mục trên.** Nếu người dùng phát hiện thiếu sót sau khi agent đã báo "xong", agent phải coi đây là lỗi nghiêm trọng của chính nó, không đổ lỗi cho việc yêu cầu chưa rõ (trừ khi thực sự chưa rõ và agent đã hỏi lại từ đầu mà không được trả lời).
 
 ## Git

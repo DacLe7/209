@@ -10,6 +10,7 @@ const GAME_STATE_SCRIPT := preload("res://scripts/autoload/game_state.gd")
 const BASE_HEALTH_SYSTEM_SCRIPT := preload("res://scripts/systems/base_health_system.gd")
 const LEVEL_SYSTEM_SCRIPT := preload("res://scripts/systems/level_system.gd")
 const HERO_SYSTEM_SCRIPT := preload("res://scripts/systems/hero_system.gd")
+const WEAPON_SYSTEM_SCRIPT := preload("res://scripts/systems/weapon_system.gd")
 
 
 func run(tree: SceneTree = null) -> void:
@@ -53,10 +54,14 @@ func _test_main_transitions_to_battle_arena(tree: SceneTree) -> void:
 func _test_battle_arena_initialization_and_waypoints(tree: SceneTree) -> void:
 	var wave_mgr: Variant = WAVE_MANAGER_SCRIPT.new()
 	var game_state: Variant = GAME_STATE_SCRIPT.new()
+	var weapon_sys: Variant = WEAPON_SYSTEM_SCRIPT.new()
+	weapon_sys.load_roster()
+	weapon_sys.set_equipped_weapon("shotgun_breach")
 
 	var arena: Variant = BATTLE_ARENA_SCENE.instantiate()
 	arena.wave_manager = wave_mgr
 	arena.game_state = game_state
+	arena.weapon_system = weapon_sys
 
 	if tree != null and tree.root != null:
 		tree.root.add_child(arena)
@@ -79,9 +84,26 @@ func _test_battle_arena_initialization_and_waypoints(tree: SceneTree) -> void:
 	_assert(bg.z_index < arena.path_line.z_index, "Background must render behind PathLine.")
 	_assert(arena.path_line.z_index < arena.base_view.z_index or arena.path_line.z_index < 0, "PathLine must render behind BaseView and Enemy entities (z_index >= 0).")
 
+	# Kiểm tra visual của MainHero
+	var hero: Node2D = arena.get_node_or_null("MainHero") as Node2D
+	_assert(hero != null, "BattleArena should have a MainHero node.")
+	var hero_body: Polygon2D = hero.get_node_or_null("Body") as Polygon2D
+	var hero_core: Polygon2D = hero.get_node_or_null("Core") as Polygon2D
+	_assert(hero_body != null and hero_core != null, "MainHero should have Body and Core Polygon2D visual nodes.")
+	_assert(hero_body.color.g > hero_body.color.r and hero_body.color.g > hero_body.color.b, "MainHero Body must be green.")
+	_assert(hero_core.color.g > hero_core.color.r and hero_core.color.g > hero_core.color.b, "MainHero Core must be green.")
+
+	# Kiểm tra đồng bộ vũ khí từ WeaponSystem sang MainHero
+	_assert(hero.get("equipped_weapon_id") == "shotgun_breach", "MainHero should synchronize equipped weapon from WeaponSystem on ready.")
+
+	# Kiểm tra cập nhật vũ khí qua signal weapon_equipped trong runtime
+	weapon_sys.set_equipped_weapon("rifle_standard")
+	_assert(hero.get("equipped_weapon_id") == "rifle_standard", "MainHero should update equipped weapon on weapon_equipped signal.")
+
 	if tree != null and tree.root != null:
 		tree.root.remove_child(arena)
 	arena.free()
+	weapon_sys.free()
 	game_state.free()
 	wave_mgr.free()
 

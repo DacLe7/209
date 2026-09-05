@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2arena001"]
+[gd_scene load_steps=7 format=3 uid="uid://b2arena001"]
 
 [ext_resource type="Script" path="res://scripts/core/battle_arena.gd" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/core/base_view.tscn" id="2_base"]
 [ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/run_result_overlay.tscn" id="4_overlay"]
+[ext_resource type="Script" path="res://scripts/entities/main_hero.gd" id="5_hero"]
 
 [node name="BattleArena" type="Node2D"]
 script = ExtResource("1_arena")
@@ -24,6 +25,18 @@ default_color = Color(0.25, 0.3, 0.38, 0.6)
 
 [node name="BaseView" parent="." instance=ExtResource("2_base")]
 position = Vector2(360, 1060)
+
+[node name="MainHero" type="Node2D" parent="."]
+position = Vector2(360, 1060)
+script = ExtResource("5_hero")
+
+[node name="Body" type="Polygon2D" parent="MainHero"]
+color = Color(0.18, 0.8, 0.35, 1)
+polygon = PackedVector2Array(0, -20, 16, 0, 0, 20, -16, 0)
+
+[node name="Core" type="Polygon2D" parent="MainHero"]
+color = Color(0.65, 1, 0.75, 1)
+polygon = PackedVector2Array(0, -10, 8, 0, 0, 10, -8, 0)
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 

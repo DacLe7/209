@@ -6,11 +6,12 @@ const BASE_HEALTH_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/base_he
 const WAVE_MANAGER_SCRIPT: Script = preload("res://scripts/systems/wave_manager.gd")
 const LEVEL_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/level_system.gd")
 const HERO_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/hero_system.gd")
+const WEAPON_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/weapon_system.gd")
 
 
 func run() -> void:
 	_test_base_defeat_stops_waves_and_emits_run_failed()
-	_test_stage_clear_stops_waves_and_emits_run_completed()
+	_test_stage_clear_stops_waves_rewards_gold_and_emits_run_completed_once()
 	_test_retry_stage_restores_initial_state()
 
 
@@ -30,7 +31,7 @@ func _test_base_defeat_stops_waves_and_emits_run_failed() -> void:
 	_cleanup(game_state, dependencies)
 
 
-func _test_stage_clear_stops_waves_and_emits_run_completed() -> void:
+func _test_stage_clear_stops_waves_rewards_gold_and_emits_run_completed_once() -> void:
 	var dependencies := _create_dependencies()
 	var game_state: Variant = _create_game_state(dependencies)
 	var completed_count := [0]
@@ -39,9 +40,11 @@ func _test_stage_clear_stops_waves_and_emits_run_completed() -> void:
 	)
 
 	dependencies.level_system.stage_cleared.emit()
+	dependencies.level_system.stage_cleared.emit()
 	var tier_at_completion: int = dependencies.wave_manager.current_tier
 	dependencies.wave_manager.advance_time(100.0)
-	_assert(completed_count[0] == 1, "Stage clear should emit run_completed once.")
+	_assert(completed_count[0] == 1, "Stage clear should emit run_completed once even if its source signal repeats.")
+	_assert(dependencies.weapon_system.current_gold == 150, "Stage clear should award exactly 150 gold once.")
 	_assert(tier_at_completion == 0 and dependencies.wave_manager.current_tier == 0, "Stage clear should clear and freeze WaveManager.")
 	_cleanup(game_state, dependencies)
 
@@ -58,6 +61,7 @@ func _test_retry_stage_restores_initial_state() -> void:
 	_assert(dependencies.base_health_system.current_health == dependencies.base_health_system.max_health, "Retry should restore full base health.")
 	_assert(dependencies.level_system.current_level == 0 and dependencies.level_system.current_exp == 0, "Retry should reset in-run level progress.")
 	_assert(dependencies.hero_system.active_heroes.is_empty(), "Retry should reset in-run hero state.")
+	_assert(dependencies.weapon_system.current_gold == 0, "Retry should not grant a completion reward.")
 	_assert(dependencies.wave_manager.current_tier == 1, "Retry should restart WaveManager from tier one.")
 	_assert(dependencies.wave_manager.active_spawn_batches.size() == 1, "Retry should leave only the new tier-one batch.")
 	_cleanup(game_state, dependencies)
@@ -74,11 +78,14 @@ func _create_dependencies() -> Dictionary:
 	level_system.base_health_system = base_health_system
 	level_system._connect_dependencies()
 	var hero_system: Variant = HERO_SYSTEM_SCRIPT.new()
+	var weapon_system: Variant = WEAPON_SYSTEM_SCRIPT.new()
+	weapon_system.load_roster()
 	return {
 		"base_health_system": base_health_system,
 		"wave_manager": wave_manager,
 		"level_system": level_system,
 		"hero_system": hero_system,
+		"weapon_system": weapon_system,
 	}
 
 
@@ -88,6 +95,7 @@ func _create_game_state(dependencies: Dictionary) -> Variant:
 	game_state.wave_manager = dependencies.wave_manager
 	game_state.level_system = dependencies.level_system
 	game_state.hero_system = dependencies.hero_system
+	game_state.weapon_system = dependencies.weapon_system
 	game_state._connect_dependencies()
 	return game_state
 
@@ -97,6 +105,7 @@ func _cleanup(game_state: Variant, dependencies: Dictionary) -> void:
 	game_state.free()
 	dependencies.level_system.free()
 	dependencies.hero_system.free()
+	dependencies.weapon_system.free()
 	dependencies.wave_manager.free()
 	dependencies.base_health_system.free()
 

@@ -1,6 +1,8 @@
 extends Node
 
 signal weapon_upgraded(weapon_id: String, new_level: int)
+signal weapon_equipped(weapon_id: String)
+signal gold_changed(current_gold: int)
 
 const WEAPON_DATA_DIRECTORY := "res://data/weapons"
 const DAMAGE_BONUS_PER_LEVEL := 0.10
@@ -9,6 +11,7 @@ const FIRE_RATE_BONUS_PER_LEVEL := 0.05
 var roster: Array[WeaponData] = []
 var weapon_levels: Dictionary = {}
 var current_gold := 0
+var equipped_weapon_id: String = "rifle_standard"
 
 
 func _ready() -> void:
@@ -59,6 +62,23 @@ func upgrade_weapon(weapon_id: String) -> bool:
 	return true
 
 
+func set_equipped_weapon(weapon_id: String) -> bool:
+	if _get_weapon_data(weapon_id) == null:
+		return false
+
+	equipped_weapon_id = weapon_id
+	weapon_equipped.emit(weapon_id)
+	return true
+
+
+func add_gold(amount: int) -> void:
+	if amount <= 0:
+		return
+
+	current_gold += amount
+	gold_changed.emit(current_gold)
+
+
 func get_weapon_stats(weapon_id: String) -> Dictionary:
 	var weapon_data := _get_weapon_data(weapon_id)
 	if weapon_data == null:
@@ -71,6 +91,7 @@ func get_weapon_stats(weapon_id: String) -> Dictionary:
 		"fire_rate": weapon_data.fire_rate * (1.0 + FIRE_RATE_BONUS_PER_LEVEL * level),
 		"target_type": weapon_data.target_type,
 		"range_type": weapon_data.range_type,
+		"range_distance": weapon_data.range_distance,
 	}
 
 

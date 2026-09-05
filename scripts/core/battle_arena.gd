@@ -15,11 +15,13 @@ const RUN_RESULT_OVERLAY_SCENE := preload("res://scenes/ui/run_result_overlay.ts
 
 var path_line: Line2D
 var base_view: Node2D
+var main_hero: Node2D
 var hud: BattleHUD
 var result_overlay: RunResultOverlay
 
 var wave_manager: Node
 var game_state: Node
+var weapon_system: Node
 
 
 func _ready() -> void:
@@ -30,8 +32,11 @@ func _ready() -> void:
 			wave_manager = get_node_or_null("/root/WaveManager")
 		if game_state == null:
 			game_state = get_node_or_null("/root/GameState")
+		if weapon_system == null:
+			weapon_system = get_node_or_null("/root/WeaponSystem")
 
 	_setup_path_and_base()
+	_sync_equipped_weapon()
 	_connect_signals()
 
 	if game_state != null and game_state.has_method("start_stage"):
@@ -47,6 +52,8 @@ func _cache_nodes() -> void:
 		path_line = get_node_or_null("PathLine") as Line2D
 	if base_view == null:
 		base_view = get_node_or_null("BaseView") as Node2D
+	if main_hero == null:
+		main_hero = get_node_or_null("MainHero") as Node2D
 	if hud == null:
 		hud = get_node_or_null("UILayer/BattleHUD") as BattleHUD
 	if result_overlay == null:
@@ -71,6 +78,9 @@ func _connect_signals() -> void:
 	if wave_manager != null and not wave_manager.enemy_spawned.is_connected(_on_enemy_spawned):
 		wave_manager.enemy_spawned.connect(_on_enemy_spawned)
 
+	if weapon_system != null and weapon_system.has_signal("weapon_equipped") and not weapon_system.weapon_equipped.is_connected(_on_weapon_equipped):
+		weapon_system.weapon_equipped.connect(_on_weapon_equipped)
+
 
 func _disconnect_signals() -> void:
 	if result_overlay != null and is_instance_valid(result_overlay) and result_overlay.back_to_map_requested.is_connected(_on_back_to_map_pressed):
@@ -78,6 +88,21 @@ func _disconnect_signals() -> void:
 
 	if wave_manager != null and is_instance_valid(wave_manager) and wave_manager.enemy_spawned.is_connected(_on_enemy_spawned):
 		wave_manager.enemy_spawned.disconnect(_on_enemy_spawned)
+
+	if weapon_system != null and is_instance_valid(weapon_system) and weapon_system.has_signal("weapon_equipped") and weapon_system.weapon_equipped.is_connected(_on_weapon_equipped):
+		weapon_system.weapon_equipped.disconnect(_on_weapon_equipped)
+
+
+func _sync_equipped_weapon() -> void:
+	if main_hero != null and weapon_system != null and "equipped_weapon_id" in weapon_system:
+		var eq_id: String = str(weapon_system.equipped_weapon_id)
+		if not eq_id.is_empty() and main_hero.has_method("equip"):
+			main_hero.equip(eq_id)
+
+
+func _on_weapon_equipped(weapon_id: String) -> void:
+	if main_hero != null and main_hero.has_method("equip"):
+		main_hero.equip(weapon_id)
 
 
 func _on_enemy_spawned(enemy: Node) -> void:

@@ -109,5 +109,13 @@ func _on_enemy_reached_base(damage: float) -> void:
 	enemy_reached_base.emit(damage)
 
 
+func get_active_enemies() -> Array:
+	var active_enemies: Array = []
+	for enemy in get_children():
+		if enemy is Node2D and enemy.has_method("take_damage") and not enemy.is_queued_for_deletion() and enemy.get("current_hp") > 0.0:
+			active_enemies.append(enemy)
+	return active_enemies
+
+
 func get_grunt_count_for_tier(tier: int) -> int:
 	return 3 + clampi(tier, 1, MAX_TIERS)

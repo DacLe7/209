@@ -32,10 +32,12 @@ func _ready() -> void:
 		weapon_system = get_node_or_null("/root/WeaponSystem")
 
 	if weapon_system != null:
-		if weapon_system.current_gold == 0:
-			weapon_system.current_gold = 1000 # Tạm gán giá trị test vì SaveSystem chưa nối
 		if not weapon_system.weapon_upgraded.is_connected(_on_weapon_upgraded):
 			weapon_system.weapon_upgraded.connect(_on_weapon_upgraded)
+		if weapon_system.has_signal("weapon_equipped") and not weapon_system.weapon_equipped.is_connected(_on_weapon_equipped):
+			weapon_system.weapon_equipped.connect(_on_weapon_equipped)
+		if weapon_system.has_signal("gold_changed") and not weapon_system.gold_changed.is_connected(_on_gold_changed):
+			weapon_system.gold_changed.connect(_on_gold_changed)
 
 	if rifle_tab_btn != null and not rifle_tab_btn.pressed.is_connected(_select_rifle):
 		rifle_tab_btn.pressed.connect(_select_rifle)
@@ -52,8 +54,13 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	if weapon_system != null and is_instance_valid(weapon_system) and weapon_system.weapon_upgraded.is_connected(_on_weapon_upgraded):
-		weapon_system.weapon_upgraded.disconnect(_on_weapon_upgraded)
+	if weapon_system != null and is_instance_valid(weapon_system):
+		if weapon_system.weapon_upgraded.is_connected(_on_weapon_upgraded):
+			weapon_system.weapon_upgraded.disconnect(_on_weapon_upgraded)
+		if weapon_system.has_signal("weapon_equipped") and weapon_system.weapon_equipped.is_connected(_on_weapon_equipped):
+			weapon_system.weapon_equipped.disconnect(_on_weapon_equipped)
+		if weapon_system.has_signal("gold_changed") and weapon_system.gold_changed.is_connected(_on_gold_changed):
+			weapon_system.gold_changed.disconnect(_on_gold_changed)
 
 
 func _cache_nodes() -> void:
@@ -106,7 +113,7 @@ func _show_weapon(index: int) -> void:
 		return
 
 	if gold_label != null:
-		var gold_amount: int = weapon_system.current_gold if weapon_system != null else 1000
+		var gold_amount: int = weapon_system.current_gold if weapon_system != null else 0
 		gold_label.text = "💰 VÀNG: %d" % gold_amount
 
 	if weapon_title != null:
@@ -143,8 +150,14 @@ func _show_weapon(index: int) -> void:
 		level_progress_bar.max_value = max_level
 		level_progress_bar.value = cur_level
 
+	var equipped_id := "rifle_standard"
+	if weapon_system != null and "equipped_weapon_id" in weapon_system:
+		equipped_id = str(weapon_system.equipped_weapon_id)
+
+	var is_equipped: bool = (weapon.id == equipped_id)
 	if equip_button != null:
-		equip_button.text = "ĐANG TRANG BỊ" if index == 0 else "TRANG BỊ"
+		equip_button.disabled = is_equipped
+		equip_button.text = "ĐANG TRANG BỊ" if is_equipped else "TRANG BỊ"
 
 	# Cập nhật nút nâng cấp và thông báo theo trạng thái
 	if upgrade_button != null:
@@ -189,9 +202,30 @@ func _on_weapon_upgraded(_weapon_id: String, _new_level: int) -> void:
 	_show_weapon(current_selected_index)
 
 
+func _on_weapon_equipped(_weapon_id: String) -> void:
+	_show_weapon(current_selected_index)
+
+
+func _on_gold_changed(_current_gold: int) -> void:
+	_show_weapon(current_selected_index)
+
+
 func _on_equip_pressed() -> void:
-	if equip_button != null:
-		equip_button.text = "ĐANG TRANG BỊ"
+	var weapon: Variant = _get_current_weapon_resource()
+	if weapon == null:
+		return
+
+	if weapon_system != null and weapon_system.has_method("set_equipped_weapon"):
+		var success: bool = weapon_system.set_equipped_weapon(weapon.id)
+		_show_weapon(current_selected_index)
+		if success:
+			if notice_label != null:
+				notice_label.text = "Đã trang bị %s!" % weapon.display_name
+		else:
+			if notice_label != null:
+				notice_label.text = "Trang bị %s thất bại!" % weapon.display_name
+	else:
+		_show_weapon(current_selected_index)
 
 
 func _on_back_pressed() -> void:
