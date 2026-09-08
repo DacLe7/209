@@ -1,6 +1,7 @@
 class_name UISystemTest
 extends RefCounted
 
+const MAIN_MENU_SCENE := preload("res://scenes/ui/main_menu.tscn")
 const BATTLE_HUD_SCENE := preload("res://scenes/ui/battle_hud.tscn")
 const MAP_SELECTION_SCENE := preload("res://scenes/ui/map_selection.tscn")
 const WEAPON_HUB_SCENE := preload("res://scenes/ui/weapon_upgrade_hub.tscn")
@@ -26,6 +27,11 @@ func run(tree: SceneTree = null) -> void:
 
 
 func _test_scenes_can_instantiate() -> void:
+	var menu_instance: Variant = MAIN_MENU_SCENE.instantiate()
+	_assert(menu_instance != null, "Main Menu scene must instantiate successfully.")
+	_assert(menu_instance is Control, "Main Menu must be a Control node.")
+	menu_instance.free()
+
 	var hud_instance: Variant = BATTLE_HUD_SCENE.instantiate()
 	_assert(hud_instance != null, "Battle HUD scene must instantiate successfully.")
 	_assert(hud_instance is Control, "Battle HUD must be a Control node.")

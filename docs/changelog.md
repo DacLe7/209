@@ -2,6 +2,18 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Main Menu & Boot Routing] - 2026-09-05
+### Đã thêm
+- Tạo scene `scenes/ui/main_menu.tscn` và script `scripts/ui/main_menu.gd` cho màn hình mở đầu (720x1280): hiển thị tên game "PostApocDefense", nút [BẮT ĐẦU] phát signal `play_pressed` và nút placeholder [CÀI ĐẶT] (disabled).
+- Cập nhật `scripts/core/main.gd`: khởi động boot vào `MainMenu` trước, lắng nghe `play_pressed` để chuyển sang `MapSelection`.
+- Cập nhật kiểm thử tự động trong `tests/main_flow_test.gd` và `tests/ui_system_test.gd` cho luồng khởi động và chuyển cảnh mới.
+
+## [Save System] - 2026-09-05
+### Đã thêm
+- SaveSystem lưu và khôi phục vàng, cấp vũ khí và vũ khí đang trang bị tại `user://save_data.json` bằng JSON có version.
+- Dữ liệu hỏng, field không hợp lệ và ID vũ khí đã bị loại bỏ được xử lý phòng thủ, không ghi đè file hỏng lúc khởi động.
+- Autosave sau các signal thay đổi vàng, nâng cấp và trang bị vũ khí; thêm bộ test headless độc lập.
+
 ## [Weapon Upgrade Hub Gold Exploit Fix] - 2026-09-05
 ### Đã sửa
 - Xóa bỏ logic placeholder tự gán `current_gold = 1000` trong `_ready()` và `_show_weapon()` của `scripts/ui/weapon_upgrade_hub.gd`, ngăn chặn lỗ hổng nhận 1000 vàng miễn phí vô hạn khi tiêu cạn vàng.

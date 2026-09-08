@@ -1,6 +1,7 @@
 class_name Main
 extends Node
 
+const MAIN_MENU_SCENE := preload("res://scenes/ui/main_menu.tscn")
 const MAP_SELECTION_SCENE := preload("res://scenes/ui/map_selection.tscn")
 const BATTLE_ARENA_SCENE := preload("res://scenes/core/battle_arena.tscn")
 
@@ -8,7 +9,15 @@ var current_view: Node = null
 
 
 func _ready() -> void:
-	show_map_selection()
+	show_main_menu()
+
+
+func show_main_menu() -> void:
+	_clear_current_view()
+	var menu: Control = MAIN_MENU_SCENE.instantiate()
+	menu.play_pressed.connect(_on_play_pressed)
+	add_child(menu)
+	current_view = menu
 
 
 func show_map_selection() -> void:
@@ -25,6 +34,10 @@ func start_battle(_stage_id: int = 1) -> void:
 	arena.back_to_map_requested.connect(_on_back_to_map_requested)
 	add_child(arena)
 	current_view = arena
+
+
+func _on_play_pressed() -> void:
+	show_map_selection()
 
 
 func _on_map_selected(stage_id: int) -> void:

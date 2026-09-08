@@ -11,24 +11,48 @@ const BASE_HEALTH_SYSTEM_SCRIPT := preload("res://scripts/systems/base_health_sy
 const LEVEL_SYSTEM_SCRIPT := preload("res://scripts/systems/level_system.gd")
 const HERO_SYSTEM_SCRIPT := preload("res://scripts/systems/hero_system.gd")
 const WEAPON_SYSTEM_SCRIPT := preload("res://scripts/systems/weapon_system.gd")
+const MAIN_MENU_SCRIPT := preload("res://scripts/ui/main_menu.gd")
 
 
 func run(tree: SceneTree = null) -> void:
-	_test_main_boots_into_map_selection(tree)
+	_test_main_boots_into_main_menu(tree)
+	_test_main_menu_transitions_to_map_selection(tree)
 	_test_main_transitions_to_battle_arena(tree)
 	_test_battle_arena_initialization_and_waypoints(tree)
 	_test_enemy_spawn_attaches_visual(tree)
 	_test_back_to_map_routing(tree)
 
 
-func _test_main_boots_into_map_selection(tree: SceneTree) -> void:
+func _test_main_boots_into_main_menu(tree: SceneTree) -> void:
 	var main: Variant = MAIN_SCENE.instantiate()
 	if tree != null and tree.root != null:
 		tree.root.add_child(main)
 	main._ready()
 
 	_assert(main.current_view != null, "Main should have a current view on boot.")
-	_assert(main.current_view is MapSelection, "Main should boot into MapSelection.")
+	_assert(main.current_view.get_script() == MAIN_MENU_SCRIPT, "Main should boot into MainMenu.")
+	var menu: Variant = main.current_view
+	menu._ready()
+	_assert(menu.title_label != null and menu.title_label.text == "PostApocDefense", "MainMenu title should be PostApocDefense.")
+	_assert(menu.play_button != null and not menu.play_button.disabled, "PlayButton should be present and enabled.")
+	_assert(menu.settings_button != null and menu.settings_button.disabled, "SettingsButton should be present and disabled.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(main)
+	main.free()
+
+
+func _test_main_menu_transitions_to_map_selection(tree: SceneTree) -> void:
+	var main: Variant = MAIN_SCENE.instantiate()
+	if tree != null and tree.root != null:
+		tree.root.add_child(main)
+	main._ready()
+
+	_assert(main.current_view.get_script() == MAIN_MENU_SCRIPT, "Main should boot into MainMenu.")
+	var menu: Variant = main.current_view
+	menu._ready()
+	menu.play_pressed.emit()
+	_assert(main.current_view is MapSelection, "Main should transition to MapSelection after play_pressed.")
 
 	if tree != null and tree.root != null:
 		tree.root.remove_child(main)
