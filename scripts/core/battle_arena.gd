@@ -7,6 +7,7 @@ const ENEMY_VIEW_SCENE := preload("res://scenes/entities/enemy_view.tscn")
 const BASE_VIEW_SCENE := preload("res://scenes/core/base_view.tscn")
 const BATTLE_HUD_SCENE := preload("res://scenes/ui/battle_hud.tscn")
 const RUN_RESULT_OVERLAY_SCENE := preload("res://scenes/ui/run_result_overlay.tscn")
+const UPGRADE_CHOICE_OVERLAY_SCENE := preload("res://scenes/ui/upgrade_choice_overlay.tscn")
 
 const STAGE_PATHS: Dictionary = {
 	1: [
@@ -71,6 +72,7 @@ var range_indicator: Node2D
 var tracers_container: Node2D
 var hud: BattleHUD
 var result_overlay: RunResultOverlay
+var upgrade_overlay: UpgradeChoiceOverlay
 
 var wave_manager: Node
 var game_state: Node
@@ -129,6 +131,8 @@ func _cache_nodes() -> void:
 		hud = get_node_or_null("UILayer/BattleHUD") as BattleHUD
 	if result_overlay == null:
 		result_overlay = get_node_or_null("UILayer/RunResultOverlay") as RunResultOverlay
+	if upgrade_overlay == null:
+		upgrade_overlay = get_node_or_null("UILayer/UpgradeChoiceOverlay") as UpgradeChoiceOverlay
 
 
 func _setup_path_and_base() -> void:
@@ -146,6 +150,12 @@ func _setup_path_and_base() -> void:
 func _connect_signals() -> void:
 	if result_overlay != null and not result_overlay.back_to_map_requested.is_connected(_on_back_to_map_pressed):
 		result_overlay.back_to_map_requested.connect(_on_back_to_map_pressed)
+
+	if upgrade_overlay != null:
+		if hero_system != null and upgrade_overlay.has_method("set_hero_system"):
+			upgrade_overlay.set_hero_system(hero_system)
+		if not upgrade_overlay.upgrade_chosen.is_connected(_on_upgrade_chosen):
+			upgrade_overlay.upgrade_chosen.connect(_on_upgrade_chosen)
 
 	if wave_manager != null and not wave_manager.enemy_spawned.is_connected(_on_enemy_spawned):
 		wave_manager.enemy_spawned.connect(_on_enemy_spawned)
@@ -168,6 +178,9 @@ func _connect_signals() -> void:
 func _disconnect_signals() -> void:
 	if result_overlay != null and is_instance_valid(result_overlay) and result_overlay.back_to_map_requested.is_connected(_on_back_to_map_pressed):
 		result_overlay.back_to_map_requested.disconnect(_on_back_to_map_pressed)
+
+	if upgrade_overlay != null and is_instance_valid(upgrade_overlay) and upgrade_overlay.upgrade_chosen.is_connected(_on_upgrade_chosen):
+		upgrade_overlay.upgrade_chosen.disconnect(_on_upgrade_chosen)
 
 	if wave_manager != null and is_instance_valid(wave_manager) and wave_manager.enemy_spawned.is_connected(_on_enemy_spawned):
 		wave_manager.enemy_spawned.disconnect(_on_enemy_spawned)
@@ -232,6 +245,10 @@ func _on_enemy_spawned(enemy: Node) -> void:
 
 func _on_back_to_map_pressed() -> void:
 	back_to_map_requested.emit()
+
+
+func _on_upgrade_chosen(_option_index: int) -> void:
+	pass
 
 
 func _on_main_hero_weapon_fired(from: Vector2, to: Vector2) -> void:

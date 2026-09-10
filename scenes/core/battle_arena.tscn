@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b2arena001"]
+[gd_scene load_steps=9 format=3 uid="uid://b2arena001"]
 
 [ext_resource type="Script" path="res://scripts/core/battle_arena.gd" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/core/base_view.tscn" id="2_base"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/run_result_overlay.tscn" id="4_overlay"]
 [ext_resource type="Script" path="res://scripts/entities/main_hero.gd" id="5_hero"]
 [ext_resource type="Script" path="res://scripts/core/range_indicator.gd" id="6_range"]
+[ext_resource type="PackedScene" path="res://scenes/ui/upgrade_choice_overlay.tscn" id="7_upgrade"]
 
 [node name="BattleArena" type="Node2D"]
 script = ExtResource("1_arena")
@@ -51,3 +52,5 @@ polygon = PackedVector2Array(0, -10, 8, 0, 0, 10, -8, 0)
 [node name="BattleHUD" parent="UILayer" instance=ExtResource("3_hud")]
 
 [node name="RunResultOverlay" parent="UILayer" instance=ExtResource("4_overlay")]
+
+[node name="UpgradeChoiceOverlay" parent="UILayer" instance=ExtResource("7_upgrade")]

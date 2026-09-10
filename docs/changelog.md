@@ -2,6 +2,22 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Upgrade Choice Overlay] - 2026-09-10
+### Đã thêm
+- Tạo scene `scenes/ui/upgrade_choice_overlay.tscn` và script `scripts/ui/upgrade_choice_overlay.gd`: overlay toàn màn hình với nền mờ (`DimBackground`) chặn tương tác, mặc định ẩn, chế độ `process_mode = PROCESS_MODE_ALWAYS`.
+- Lắng nghe signal `HeroSystem.upgrade_choices_ready`: tự động sinh động 2-3 thẻ nâng cấp (`PanelContainer` trong `HBoxContainer`) hiển thị rõ ràng nhãn hành động ("🆕 MỞ MỚI" màu xanh / "⬆ NÂNG CẤP" màu vàng cam), tên hiển thị của hero, thông tin cấp độ hiện tại và kế tiếp ("Cấp %d ➔ Cấp %d"), cùng nút [CHỌN].
+- Tạm dừng game (`get_tree().paused = true`) khi overlay hiển thị để người chơi tập trung lựa chọn, tự động khôi phục (`get_tree().paused = false`) khi hoàn tất lựa chọn hoặc thoát scene.
+- Bấm chọn 1 thẻ gọi trực tiếp `HeroSystem.choose_upgrade(index)`, phát signal `upgrade_chosen(option_index)`, và tự động đóng overlay (hoặc tiếp tục hiển thị đợt nâng cấp tiếp theo nếu còn hàng đợi level-up).
+- Lắng nghe `HeroSystem.run_reset`: tự động đóng overlay và gỡ tạm dừng khi trận đấu reset.
+- Tích hợp node `UpgradeChoiceOverlay` vào `UILayer` của `scenes/core/battle_arena.tscn`, đồng bộ tham chiếu và kết nối signal trong `scripts/core/battle_arena.gd`.
+- Bổ sung unit test `_test_upgrade_choice_overlay_lifecycle` trong `tests/main_flow_test.gd`: xác thực toàn diện vòng đời overlay, số lượng thẻ tạo động, nội dung nhãn, phát signal chọn thẻ và xử lý dọn dẹp khi reset run.
+
+## [Player-Selected Hero Upgrades] - 2026-09-10
+### Đã thay đổi
+- HeroSystem phát danh sách thẻ activate/upgrade khi lên cấp thay vì tự áp dụng ngẫu nhiên.
+- Level-up đến khi đang chọn được xếp hàng; request không còn candidate bị bỏ qua để không chặn hàng đợi.
+- Thêm test headless cho format options, chọn thẻ, queue, reset và trường hợp không có candidate.
+
 ## [Rectangular RangeIndicator & Secondary Hero Bullet Tracers] - 2026-09-10
 ### Đã thêm
 - Cập nhật `scripts/core/range_indicator.gd`: chuyển từ vẽ vòng tròn bán kính sang vẽ hình chữ nhật qua `draw_rect` với 2 thuộc tính `half_width` và `half_height` (tâm tại `(0, 0)`, kích thước `2 * half_width` x `2 * half_height`).

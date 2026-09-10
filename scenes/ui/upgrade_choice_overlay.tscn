@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8upgradchoice01"]
+
+[ext_resource type="Script" path="res://scripts/ui/upgrade_choice_overlay.gd" id="1_upgrade_overlay"]
+
+[node name="UpgradeChoiceOverlay" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_upgrade_overlay")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.07, 0.88)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainPanel" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(660, 480)
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/MainPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "CHỌN NÂNG CẤP HERO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/MainPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 18
+text = "Chọn 1 tiếp viện để gia tăng hỏa lực phòng thủ:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CardsContainer" type="HBoxContainer" parent="CenterContainer/MainPanel"]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1

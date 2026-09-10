@@ -23,6 +23,7 @@ func run(tree: SceneTree = null) -> void:
 	_test_bullet_tracer_lifecycle(tree)
 	_test_secondary_hero_lifecycle(tree)
 	_test_enemy_spawn_attaches_visual(tree)
+	_test_upgrade_choice_overlay_lifecycle(tree)
 	_test_back_to_map_routing(tree)
 
 
@@ -316,6 +317,108 @@ func _test_enemy_spawn_attaches_visual(tree: SceneTree) -> void:
 	if tree != null and tree.root != null:
 		tree.root.remove_child(arena)
 	arena.free()
+	game_state.free()
+	wave_mgr.free()
+
+
+func _test_upgrade_choice_overlay_lifecycle(tree: SceneTree) -> void:
+	var wave_mgr: Variant = WAVE_MANAGER_SCRIPT.new()
+	var game_state: Variant = GAME_STATE_SCRIPT.new()
+	var weapon_sys: Variant = WEAPON_SYSTEM_SCRIPT.new()
+	var hero_sys: Variant = HERO_SYSTEM_SCRIPT.new()
+	hero_sys.load_roster()
+
+	var arena: Variant = BATTLE_ARENA_SCENE.instantiate()
+	arena.wave_manager = wave_mgr
+	arena.game_state = game_state
+	arena.weapon_system = weapon_sys
+	arena.hero_system = hero_sys
+
+	if tree != null and tree.root != null:
+		tree.root.add_child(arena)
+	arena._ready()
+
+	_assert(arena.upgrade_overlay != null, "BattleArena should have an UpgradeChoiceOverlay.")
+	_assert(not arena.upgrade_overlay.visible, "UpgradeChoiceOverlay should initially be hidden.")
+	_assert(arena.upgrade_overlay.process_mode == Node.PROCESS_MODE_ALWAYS, "UpgradeChoiceOverlay should have process_mode = PROCESS_MODE_ALWAYS.")
+
+	# 1. Phát signal upgrade_choices_ready từ HeroSystem với 2 options
+	var mock_options: Array[Dictionary] = [
+		{
+			"action": "activate",
+			"hero_id": "commander_sarah",
+			"display_name": "Commander Sarah",
+			"current_level": 0,
+			"next_level": 1,
+			"max_level": 15
+		},
+		{
+			"action": "upgrade",
+			"hero_id": "sniper_ghost",
+			"display_name": "Ghost Sniper",
+			"current_level": 2,
+			"next_level": 3,
+			"max_level": 15
+		}
+	]
+	hero_sys.pending_upgrade_options = mock_options.duplicate(true)
+	hero_sys.upgrade_choices_ready.emit(mock_options)
+
+	_assert(arena.upgrade_overlay.visible, "UpgradeChoiceOverlay should be visible after upgrade_choices_ready.")
+	if tree != null and arena.is_inside_tree():
+		_assert(tree.paused, "Game tree should be paused when UpgradeChoiceOverlay is open.")
+
+	var cards_container: HBoxContainer = arena.upgrade_overlay.get_node_or_null("CenterContainer/MainPanel/CardsContainer") as HBoxContainer
+	_assert(cards_container != null, "CardsContainer must exist.")
+	_assert(cards_container.get_child_count() == 2, "CardsContainer should have 2 cards.")
+
+	var card_0: Control = cards_container.get_child(0) as Control
+	_assert(card_0 != null, "Card 0 should exist.")
+	var action_label_0: Label = card_0.find_child("ActionLabel", true, false) as Label
+	var name_label_0: Label = card_0.find_child("NameLabel", true, false) as Label
+	var level_label_0: Label = card_0.find_child("LevelLabel", true, false) as Label
+	var button_0: Button = card_0.find_child("SelectButton", true, false) as Button
+	_assert(action_label_0 != null and action_label_0.text.contains("MỞ MỚI"), "Card 0 action should be MỞ MỚI.")
+	_assert(name_label_0 != null and name_label_0.text == "Commander Sarah", "Card 0 name should be Commander Sarah.")
+	_assert(level_label_0 != null and level_label_0.text.contains("Cấp 1"), "Card 0 level should mention Cấp 1.")
+	_assert(button_0 != null, "Card 0 should have a SelectButton.")
+
+	var card_1: Control = cards_container.get_child(1) as Control
+	var action_label_1: Label = card_1.find_child("ActionLabel", true, false) as Label
+	_assert(action_label_1 != null and action_label_1.text.contains("NÂNG CẤP"), "Card 1 action should be NÂNG CẤP.")
+
+	# 2. Bấm chọn thẻ 0
+	var chosen_index := [-1]
+	var signal_received := [false]
+	var choice_callable := func(idx: int) -> void:
+		chosen_index[0] = idx
+		signal_received[0] = true
+	arena.upgrade_overlay.upgrade_chosen.connect(choice_callable)
+
+	button_0.pressed.emit()
+
+	_assert(signal_received[0], "upgrade_chosen signal should be emitted on card selection.")
+	_assert(chosen_index[0] == 0, "Selected index should be 0.")
+	_assert(not arena.upgrade_overlay.visible, "Overlay should hide after card selection.")
+	if tree != null and arena.is_inside_tree():
+		_assert(not tree.paused, "Game tree should be unpaused after overlay closes.")
+
+	arena.upgrade_overlay.upgrade_chosen.disconnect(choice_callable)
+
+	# 3. Test reset: khi overlay đang hiện mà có run_reset thì overlay tự ẩn
+	hero_sys.pending_upgrade_options = mock_options.duplicate(true)
+	hero_sys.upgrade_choices_ready.emit(mock_options)
+	_assert(arena.upgrade_overlay.visible, "Overlay should be visible again.")
+	hero_sys.run_reset.emit()
+	_assert(not arena.upgrade_overlay.visible, "Overlay should hide on run_reset.")
+	if tree != null and arena.is_inside_tree():
+		_assert(not tree.paused, "Tree should not remain paused after run_reset.")
+
+	if tree != null and tree.root != null:
+		tree.root.remove_child(arena)
+	arena.free()
+	hero_sys.free()
+	weapon_sys.free()
 	game_state.free()
 	wave_mgr.free()
 
