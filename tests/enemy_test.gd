@@ -51,6 +51,7 @@ func _test_waypoints_move_enemy_and_emit_reached_base_once() -> void:
 	enemy.move_along_path(0.5)
 	enemy.move_along_path(1.0)
 	_assert(reached_base_damage == [3.0], "Reaching the final waypoint should emit base damage exactly once.")
+	_assert(enemy.is_queued_for_deletion(), "Enemy should queue itself for deletion after emitting reached_base.")
 	enemy.free()
 
 

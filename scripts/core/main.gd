@@ -28,9 +28,10 @@ func show_map_selection() -> void:
 	current_view = map_sel
 
 
-func start_battle(_stage_id: int = 1) -> void:
+func start_battle(stage_id: int = 1) -> void:
 	_clear_current_view()
 	var arena: Node2D = BATTLE_ARENA_SCENE.instantiate()
+	arena.stage_id = stage_id
 	arena.back_to_map_requested.connect(_on_back_to_map_requested)
 	add_child(arena)
 	current_view = arena

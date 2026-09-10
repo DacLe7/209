@@ -67,6 +67,7 @@ func move_along_path(delta: float) -> void:
 	if _waypoint_index == _waypoints.size() - 1:
 		_has_reached_base = true
 		reached_base.emit(damage_to_base)
+		queue_free()
 
 
 func _apply_enemy_data() -> void:

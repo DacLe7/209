@@ -71,7 +71,9 @@ func _create_dependencies() -> Dictionary:
 	var base_health_system: Variant = BASE_HEALTH_SYSTEM_SCRIPT.new()
 	var wave_manager: Variant = WAVE_MANAGER_SCRIPT.new()
 	wave_manager.tier_duration_seconds = 10.0
-	wave_manager.path_waypoints = PackedVector2Array([Vector2.ZERO, Vector2(1000.0, 0.0)])
+	wave_manager.spawn_x_range = Vector2(100.0, 620.0)
+	wave_manager.lane_top_y = 0.0
+	wave_manager.lane_bottom_y = 1000.0
 	wave_manager.base_health_system = base_health_system
 	wave_manager.start_wave()
 	var level_system: Variant = LEVEL_SYSTEM_SCRIPT.new()

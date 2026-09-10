@@ -91,7 +91,8 @@ func get_weapon_stats(weapon_id: String) -> Dictionary:
 		"fire_rate": weapon_data.fire_rate * (1.0 + FIRE_RATE_BONUS_PER_LEVEL * level),
 		"target_type": weapon_data.target_type,
 		"range_type": weapon_data.range_type,
-		"range_distance": weapon_data.range_distance,
+		"range_half_width": weapon_data.range_half_width,
+		"range_half_height": weapon_data.range_half_height,
 	}
 
 

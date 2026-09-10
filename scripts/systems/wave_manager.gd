@@ -8,7 +8,9 @@ const MAX_TIERS := 30
 const ENEMY_SCRIPT: Script = preload("res://scripts/entities/enemy.gd")
 
 @export var tier_duration_seconds: float = 15.0
-@export var path_waypoints: PackedVector2Array = []
+@export var spawn_x_range := Vector2(80.0, 640.0)
+@export var lane_top_y := 80.0
+@export var lane_bottom_y := 1060.0
 @export var grunt_data: EnemyData = preload("res://data/enemies/enemy_grunt.tres")
 @export var boss_data: EnemyData = preload("res://data/enemies/enemy_boss_stage1.tres")
 
@@ -91,7 +93,11 @@ func _advance_batch(batch: Dictionary, delta: float) -> void:
 func _spawn_enemy(enemy_data: EnemyData, _tier: int) -> Node2D:
 	var enemy: Node2D = ENEMY_SCRIPT.new()
 	enemy.initialize(enemy_data)
-	enemy.set_waypoints(path_waypoints)
+	var spawn_x := randf_range(minf(spawn_x_range.x, spawn_x_range.y), maxf(spawn_x_range.x, spawn_x_range.y))
+	enemy.set_waypoints(PackedVector2Array([
+		Vector2(spawn_x, lane_top_y),
+		Vector2(spawn_x, lane_bottom_y),
+	]))
 	enemy.died.connect(_on_enemy_died)
 	enemy.reached_base.connect(_on_enemy_reached_base)
 	add_child(enemy)

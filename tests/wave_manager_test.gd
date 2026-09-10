@@ -7,7 +7,9 @@ const BASE_HEALTH_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/base_he
 
 func run() -> void:
 	_test_new_wave_manager_does_not_start_wave()
+	_test_default_lane_configuration_is_safe()
 	_test_tier_spawns_the_expected_enemy_count()
+	_test_spawned_enemies_receive_vertical_random_lanes()
 	_test_enemy_spawned_signal_matches_spawn_count()
 	_test_next_tier_starts_while_previous_batch_is_active()
 	_test_enemy_signals_are_relayed_to_systems()
@@ -22,6 +24,33 @@ func _test_tier_spawns_the_expected_enemy_count() -> void:
 	_assert(wave_manager.active_spawn_batches[0]["tier"] == 1, "The first batch should be tier one.")
 	_assert(wave_manager.active_spawn_batches[0]["spawned_count"] == 4, "Tier one should schedule four grunts.")
 	_assert(wave_manager.get_child_count() == 4, "Tier one should spawn 3 + tier grunt enemies.")
+	wave_manager.clear_wave()
+	wave_manager.free()
+	base_health_system.free()
+
+
+func _test_default_lane_configuration_is_safe() -> void:
+	var wave_manager: Variant = WAVE_MANAGER_SCRIPT.new()
+	_assert(wave_manager.spawn_x_range == Vector2(80.0, 640.0), "WaveManager should provide a safe default horizontal spawn range.")
+	_assert(wave_manager.lane_top_y == 80.0 and wave_manager.lane_bottom_y == 1060.0, "WaveManager should provide a complete default vertical lane.")
+	wave_manager.free()
+
+
+func _test_spawned_enemies_receive_vertical_random_lanes() -> void:
+	var wave_manager: Variant = _create_wave_manager()
+	var base_health_system: Node = wave_manager.base_health_system
+	wave_manager.spawn_x_range = Vector2(600.0, 120.0)
+	wave_manager.lane_top_y = 60.0
+	wave_manager.lane_bottom_y = 1020.0
+	wave_manager.advance_time(10.0)
+
+	for enemy in wave_manager.get_children():
+		var spawn_x: float = enemy.global_position.x
+		_assert(spawn_x >= 120.0 and spawn_x <= 600.0, "Spawned enemy X should stay inside the lane range even when it is configured in reverse.")
+		_assert(enemy.global_position.y == 60.0, "Spawned enemy should start at the configured lane top.")
+		enemy.move_along_path(1.0)
+		_assert(enemy.global_position.x == spawn_x and enemy.global_position.y > 60.0, "Each enemy should move straight down its own vertical lane.")
+
 	wave_manager.clear_wave()
 	wave_manager.free()
 	base_health_system.free()
@@ -108,7 +137,9 @@ func _test_no_batches_are_created_after_tier_thirty() -> void:
 func _create_wave_manager() -> Variant:
 	var wave_manager: Variant = WAVE_MANAGER_SCRIPT.new()
 	wave_manager.tier_duration_seconds = 10.0
-	wave_manager.path_waypoints = PackedVector2Array([Vector2.ZERO, Vector2(1000.0, 0.0)])
+	wave_manager.spawn_x_range = Vector2(100.0, 620.0)
+	wave_manager.lane_top_y = 0.0
+	wave_manager.lane_bottom_y = 1000.0
 	wave_manager.grunt_data = _create_enemy_data(1.0)
 	wave_manager.boss_data = _create_enemy_data(20.0)
 	wave_manager.base_health_system = BASE_HEALTH_SYSTEM_SCRIPT.new()

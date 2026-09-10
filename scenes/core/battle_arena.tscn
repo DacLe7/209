@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://b2arena001"]
+[gd_scene load_steps=8 format=3 uid="uid://b2arena001"]
 
 [ext_resource type="Script" path="res://scripts/core/battle_arena.gd" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/core/base_view.tscn" id="2_base"]
 [ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/run_result_overlay.tscn" id="4_overlay"]
 [ext_resource type="Script" path="res://scripts/entities/main_hero.gd" id="5_hero"]
+[ext_resource type="Script" path="res://scripts/core/range_indicator.gd" id="6_range"]
 
 [node name="BattleArena" type="Node2D"]
 script = ExtResource("1_arena")
@@ -19,16 +20,23 @@ color = Color(0.06, 0.08, 0.1, 1)
 
 [node name="PathLine" type="Line2D" parent="."]
 z_index = -5
-points = PackedVector2Array(360, 80, 360, 1060)
+points = PackedVector2Array(360, 80, 180, 260, 540, 480, 160, 700, 520, 890, 360, 1060)
 width = 8.0
 default_color = Color(0.25, 0.3, 0.38, 0.6)
 
 [node name="BaseView" parent="." instance=ExtResource("2_base")]
 position = Vector2(360, 1060)
 
+[node name="Tracers" type="Node2D" parent="."]
+z_index = 5
+
 [node name="MainHero" type="Node2D" parent="."]
 position = Vector2(360, 1060)
 script = ExtResource("5_hero")
+
+[node name="RangeIndicator" type="Node2D" parent="MainHero"]
+z_index = -1
+script = ExtResource("6_range")
 
 [node name="Body" type="Polygon2D" parent="MainHero"]
 color = Color(0.18, 0.8, 0.35, 1)

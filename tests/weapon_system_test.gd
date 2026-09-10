@@ -73,6 +73,7 @@ func _test_stats_scale_linearly_with_level() -> void:
 	_assert(is_equal_approx(stats["damage"], 9.6), "Level two rifle damage should be base damage plus 20 percent of base.")
 	_assert(is_equal_approx(stats["fire_rate"], 1.32), "Level two rifle fire rate should be base fire rate plus 10 percent of base.")
 	_assert(stats["target_type"] == WeaponData.TargetType.SINGLE, "Combat metadata should be included with scaled stats.")
+	_assert(stats["range_half_width"] == 280.0 and stats["range_half_height"] == 450.0, "Weapon stats should expose rectangle range half-extents.")
 	weapon_system.free()
 
 

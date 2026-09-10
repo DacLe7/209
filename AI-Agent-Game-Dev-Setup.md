@@ -347,3 +347,35 @@ Vài thứ nếu không chốt trước, agent sẽ tự đoán và có thể đ
 - [ ] **Ai duyệt PR**: chỉ mình bạn duyệt, hay cho phép agent tự merge nhánh nhỏ (test, docs) không cần chờ?
 
 Sau khi có đủ mấy điểm này, bạn có thể giao thẳng Phase 0 cho Antigravity trước, chờ nó xong rồi mới đưa Sprint 1 cho Codex — đúng thứ tự đã note ở mục 1.1.
+
+---
+
+## 10. Sprint 2 — Combat visibility & polish (sau khi Sprint 1 hoàn tất)
+
+Log tiến độ, để tiện theo dõi khi quay lại sau nhiều lượt review:
+
+- ✅ Đường đi quái: đổi từ 1 đường chung sang random-lane (`WaveManager.spawn_x_range/lane_top_y/lane_bottom_y`)
+- ✅ Vòng tròn tầm bắn (`RangeIndicator`, vẽ bằng `_draw()`, cập nhật theo vũ khí trang bị)
+- ✅ Đường đạn `MainHero` (`weapon_fired` signal + `Line2D` tạm trong `battle_arena.gd`)
+- ✅ Spawn `SecondaryHero` ra chiến trường khi `HeroSystem` kích hoạt (Antigravity)
+- ⏳ **Đang chờ Codex — gộp 3 việc cùng đợt:**
+  1. Thêm signal `weapon_fired(from, to)` vào `secondary_hero.gd` — y hệt pattern `main_hero.gd`
+  2. Đổi tầm đánh từ hình tròn (Euclid distance) sang hình chữ nhật cho cả `main_hero.gd` và `secondary_hero.gd` — thay field/logic `range_distance` bằng kích thước chữ nhật (`half_width`/`half_height` hoặc tên tương đương, tự đề xuất), cập nhật `WeaponData`/`HeroData` và `WeaponSystem.get_weapon_stats()`
+  3. **Bug quái chạm base không tự xoá** — `enemy.gd` xử lý `reached_base` thiếu `queue_free()` (khác với xử lý chết ở `take_damage()` đã vá trước đó), khiến quái dồn chồng vĩnh viễn tại vị trí base theo thời gian (xác nhận qua playtest thật — ảnh chụp cho thấy dải quái xếp hàng ngang tại `MainHero`)
+- ⬜ Sau khi Codex xong việc 2: giao Antigravity sửa `range_indicator.gd` vẽ hình chữ nhật thay vì hình tròn, theo đúng field mới
+
+**Prompt gộp gửi Codex:**
+
+---
+
+> Đọc `AGENTS.md`. 3 việc, làm tuần tự trong 1 đợt, mỗi việc xong báo DoD riêng (không gộp báo cáo):
+>
+> **1. `weapon_fired` cho `SecondaryHero`**: thêm signal `weapon_fired(from: Vector2, to: Vector2)` vào `secondary_hero.gd`, phát mỗi lần `take_damage()` thật sự trúng 1 mục tiêu trong `advance_combat()` — y hệt pattern đã làm ở `main_hero.gd`. Test xác nhận số lần phát khớp số mục tiêu trúng đòn.
+>
+> **2. Tầm đánh hình chữ nhật thay vì hình tròn**: áp dụng cho cả `main_hero.gd` và `secondary_hero.gd`. Thay điều kiện khoảng cách Euclid (`distance > range_distance`) bằng kiểm tra chữ nhật (`abs(dx) <= half_width` và `abs(dy) <= half_height`). Cần thêm field kích thước chữ nhật vào `WeaponData`/`HeroData` (tự đề xuất tên field và cách giữ tương thích/thay thế `range_distance` cũ), cập nhật `WeaponSystem.get_weapon_stats()` và tương đương bên hero để trả đúng field mới. Điền số liệu thật vào các `.tres` hiện có.
+>
+> **3. Vá bug quái chạm base không tự xoá**: trong `enemy.gd`, chỗ xử lý `reached_base` (set `_has_reached_base = true`, emit `reached_base`) đang thiếu `queue_free()` sau khi emit — khiến quái dồn chồng vĩnh viễn tại vị trí base (xác nhận bug thật qua playtest: quái xếp thành dải dài không biến mất). Thêm `queue_free()` đúng vị trí (sau emit, giữ nguyên thứ tự đã dùng cho case chết ở `take_damage()`). Cập nhật test xác nhận `is_queued_for_deletion()` đúng sau khi enemy chạm base.
+>
+> Việc 2 là thay đổi kiến trúc lớn nhất (đổi field data + 2 file entity) — **trình plan riêng cho việc 2, dừng chờ duyệt**, đặc biệt cách đặt tên field mới và xử lý dữ liệu cũ. Việc 1 và 3 nhỏ, có thể làm thẳng.
+
+---

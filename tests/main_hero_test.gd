@@ -11,7 +11,7 @@ func run() -> void:
 	_test_fires_at_the_configured_fire_rate()
 	_test_single_weapon_hits_only_the_nearest_enemy()
 	_test_multi_weapon_hits_all_enemies_in_range()
-	_test_out_of_range_enemy_is_not_damaged()
+	_test_rectangular_range_allows_corner_and_rejects_axis_overflow()
 
 
 func _test_fires_at_the_configured_fire_rate() -> void:
@@ -35,10 +35,16 @@ func _test_single_weapon_hits_only_the_nearest_enemy() -> void:
 	var hero: Variant = _create_hero(dependencies)
 	var closest_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(100.0, 0.0))
 	var farther_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(200.0, 0.0))
+	var fired_positions: Array[Dictionary] = []
+	hero.weapon_fired.connect(func(from: Vector2, to: Vector2) -> void:
+		fired_positions.append({"from": from, "to": to})
+	)
 
 	hero.advance_combat(1.0)
 	_assert(closest_enemy.current_hp == 92.0, "Single-target weapon should damage the closest enemy in range.")
 	_assert(farther_enemy.current_hp == 100.0, "Single-target weapon should not damage farther enemies.")
+	_assert(fired_positions.size() == 1, "Single-target weapon should emit weapon_fired once per hit.")
+	_assert(fired_positions[0]["from"] == Vector2.ZERO and fired_positions[0]["to"] == closest_enemy.global_position, "weapon_fired should report the hero and hit target positions.")
 	_cleanup(hero, dependencies)
 
 
@@ -47,23 +53,33 @@ func _test_multi_weapon_hits_all_enemies_in_range() -> void:
 	var hero: Variant = _create_hero(dependencies)
 	hero.equip("shotgun_breach")
 	var near_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(100.0, 0.0))
-	var edge_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(220.0, 0.0))
-	var distant_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(221.0, 0.0))
+	var edge_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(180.0, 0.0))
+	var distant_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(181.0, 0.0))
+	var fired_targets: Array[Vector2] = []
+	hero.weapon_fired.connect(func(_from: Vector2, to: Vector2) -> void:
+		fired_targets.append(to)
+	)
 
 	hero.advance_combat(1.3)
 	_assert(near_enemy.current_hp == 84.0, "Multi-target weapon should damage enemies in close range.")
 	_assert(edge_enemy.current_hp == 84.0, "Multi-target weapon should include enemies exactly at range distance.")
 	_assert(distant_enemy.current_hp == 100.0, "Multi-target weapon should not damage enemies beyond range distance.")
+	_assert(fired_targets.size() == 2, "Multi-target weapon should emit weapon_fired once for each hit enemy.")
+	_assert(fired_targets.has(near_enemy.global_position) and fired_targets.has(edge_enemy.global_position), "Multi-target weapon should report every target that took damage.")
 	_cleanup(hero, dependencies)
 
 
-func _test_out_of_range_enemy_is_not_damaged() -> void:
+func _test_rectangular_range_allows_corner_and_rejects_axis_overflow() -> void:
 	var dependencies := _create_dependencies()
 	var hero: Variant = _create_hero(dependencies)
-	var enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(451.0, 0.0))
+	var corner_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(280.0, 450.0))
+	var horizontal_overflow_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(281.0, 0.0))
+	var vertical_overflow_enemy: Node2D = _add_enemy(dependencies.wave_manager, Vector2(0.0, 451.0))
 
-	hero.advance_combat(2.0)
-	_assert(enemy.current_hp == 100.0, "Enemies outside weapon range must not be damaged.")
+	hero.advance_combat(0.9)
+	_assert(corner_enemy.current_hp == 92.0, "Enemies inside both rectangle half-extents should be damaged even outside the old circular range.")
+	_assert(horizontal_overflow_enemy.current_hp == 100.0, "Enemies beyond rectangle half-width must not be damaged.")
+	_assert(vertical_overflow_enemy.current_hp == 100.0, "Enemies beyond rectangle half-height must not be damaged.")
 	_cleanup(hero, dependencies)
 
 

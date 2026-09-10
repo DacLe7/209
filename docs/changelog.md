@@ -2,6 +2,78 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Rectangular RangeIndicator & Secondary Hero Bullet Tracers] - 2026-09-10
+### Đã thêm
+- Cập nhật `scripts/core/range_indicator.gd`: chuyển từ vẽ vòng tròn bán kính sang vẽ hình chữ nhật qua `draw_rect` với 2 thuộc tính `half_width` và `half_height` (tâm tại `(0, 0)`, kích thước `2 * half_width` x `2 * half_height`).
+- Cập nhật `scripts/core/battle_arena.gd`: hàm `_update_range_indicator()` đọc đúng 2 key `range_half_width` và `range_half_height` từ `WeaponSystem.get_weapon_stats()` và gán vào `half_width`/`half_height` của `RangeIndicator`.
+- Kết nối signal `weapon_fired` của mỗi instance `SecondaryHero` vào hàm vẽ tia đạn chung `_on_main_hero_weapon_fired` trong `battle_arena.gd`, và ngắt kết nối an toàn khi reset run.
+- Cập nhật `tests/main_flow_test.gd`: gỡ 2 comment TODO, khôi phục và kiểm tra chính xác kích thước half-extent mới (`shotgun_breach`: `180x220`, `rifle_standard`: `280x450`), đồng thời kiểm thử signal `weapon_fired` của `SecondaryHero` tạo tia đạn thành công.
+
+## [Secondary Hero Arena Spawning & Lifecycle] - 2026-09-10
+### Đã thêm
+- Bổ sung cấu hình 4 slot bố cục chữ V quanh MainHero trong `scripts/core/battle_arena.gd`: Slot 0 `(-80, -45)`, Slot 1 `(80, -45)`, Slot 2 `(-45, -90)`, Slot 3 `(45, -90)` không chồng lấn lên MainHero hay BaseView.
+- Lắng nghe `HeroSystem.hero_activated`: tự động tạo instance `SecondaryHero.new()`, khởi tạo với `HeroData` tương ứng và level, đặt vị trí theo slot, gán visual 2 `Polygon2D` (Body vàng cam `Color(0.95, 0.65, 0.15, 1.0)`, Core vàng sáng `Color(1.0, 0.92, 0.45, 1.0)`) và thêm vào scene.
+- Lắng nghe `HeroSystem.hero_upgraded`: cập nhật `set_level(new_level)` cho instance hero phụ tương ứng.
+- Lắng nghe `HeroSystem.run_reset`: giải phóng toàn bộ instance `SecondaryHero` đang hoạt động.
+- Đồng bộ tự động các hero phụ đã kích hoạt sẵn từ trước lúc `BattleArena._ready()`.
+- Bổ sung unit test `_test_secondary_hero_lifecycle` trong `tests/main_flow_test.gd` xác thực toàn diện vòng đời, vị trí slot và visual.
+
+## [Rectangular Combat Range] - 2026-09-10
+### Đã thay đổi
+- WeaponData và HeroData thay bán kính tròn bằng `range_half_width`/`range_half_height`; data mẫu và WeaponSystem đã dùng API mới.
+- MainHero và SecondaryHero kiểm tra vùng bắn chữ nhật, vẫn ưu tiên mục tiêu SINGLE gần nhất trong vùng.
+- Tạm vô hiệu hoá hai assertion radius cũ của RangeIndicator, chờ Antigravity chuyển visual sang hình chữ nhật.
+
+## [Enemy Base Reach Cleanup] - 2026-09-10
+### Đã sửa
+- Enemy phát `reached_base` trước rồi tự `queue_free()` khi đến base, ngăn quái tích tụ vĩnh viễn tại trụ.
+- Thêm assertion headless xác nhận node đã được xếp lịch xoá sau khi chạm base.
+
+## [Secondary Hero Weapon Fired Signal] - 2026-09-10
+### Đã thêm
+- SecondaryHero phát `weapon_fired(from, to)` cho từng mục tiêu nhận sát thương, gồm từng mục tiêu MULTI.
+- Mở rộng test headless xác nhận số lần và toạ độ signal cho cả SINGLE/MULTI.
+
+## [Bullet Tracer Effects & Visibility Enhancement] - 2026-09-09
+### Đã thêm
+- Thêm node container `Tracers` (`Node2D`, `z_index = 5`) trong `scenes/core/battle_arena.tscn` để chứa các tia đạn, đảm bảo hiển thị rõ trên nền, trên hero và quái.
+- Cập nhật `scripts/core/battle_arena.gd`: lắng nghe signal `main_hero.weapon_fired(from, to)`, tạo tia đạn `Line2D` tức thì với độ dày `4.5px`, màu sáng xanh hero `Color(0.65, 1.0, 0.75, 0.9)`, bo tròn 2 đầu `LINE_CAP_ROUND`.
+- Quản lý vòng đời tia đạn tập trung qua `_process(delta)` với thời lượng tồn tại `0.25s` (tăng từ 0.12s để mắt thường quan sát rõ ràng), giải phóng node và remove khỏi tree ngay khi hết hạn, dọn sạch khi `_exit_tree()`.
+- Bổ sung unit test `_test_bullet_tracer_lifecycle` trong `tests/main_flow_test.gd`: kiểm tra việc tạo `Line2D`, thuộc tính visual, toạ độ, thời lượng sống 0.25s, xử lý multi-shot đồng thời và giải phóng sạch sẽ khi thoát scene.
+
+## [Main Hero Dynamic Range Indicator] - 2026-09-09
+### Đã thêm
+- Tạo script `scripts/core/range_indicator.gd` kế thừa `Node2D`, vẽ vòng tròn tầm bắn bằng code `_draw()` (`draw_circle` màu mờ + `draw_arc` viền ngoài) với thuộc tính `radius` tự động gọi `queue_redraw()`.
+- Thêm node con `RangeIndicator` (`z_index = -1`) vào `MainHero` trong `scenes/core/battle_arena.tscn` để hiển thị phạm vi tầm bắn dưới thân hero/quái và trên nền arena.
+- Cập nhật `scripts/core/battle_arena.gd`: đồng bộ bán kính `radius` từ `WeaponSystem.get_weapon_stats()` khi khởi tạo `_ready()` và cập nhật động qua signal `weapon_equipped`.
+- Mở rộng unit test trong `tests/main_flow_test.gd`: kiểm tra tồn tại node `RangeIndicator`, tầng `z_index`, bán kính khởi tạo theo vũ khí ban đầu và tự động cập nhật bán kính khi đổi sang vũ khí khác.
+
+## [Main Hero Weapon Fired Signal] - 2026-09-09
+### Đã thêm
+- MainHero phát `weapon_fired(from, to)` cho từng mục tiêu thực sự nhận sát thương, gồm từng mục tiêu của đòn MULTI.
+- Bổ sung test headless cho số lần và toạ độ signal ở đòn SINGLE/MULTI.
+
+## [Random Enemy Lanes] - 2026-09-09
+### Đã thay đổi
+- WaveManager thay shared path bằng lane dọc ngẫu nhiên riêng cho từng quái, với biên X và Y cấu hình được.
+- BattleArena xoá PathLine zíc zắc lúc runtime vì nó không còn phản ánh đường đi gameplay.
+- Cập nhật test spawn, GameState và main flow theo API lane mới.
+
+## [Secondary Hero Combat] - 2026-09-08
+### Đã thêm
+- HeroData có chỉ số combat; Commander Sarah đánh đa mục tiêu tầm trung, Ghost Sniper đánh đơn mục tiêu tầm xa.
+- SecondaryHero tự tìm mục tiêu và bắn theo cooldown; damage tăng luỹ thừa theo level tạm thời trong màn.
+- Thêm kiểm thử headless cho nhịp bắn, SINGLE/MULTI, giới hạn tầm và tăng cấp.
+
+## [Stage Waypoints & Stage 1 Zigzag Path] - 2026-09-08
+### Đã thêm
+- Thêm từ điển `STAGE_PATHS` trong `scripts/core/battle_arena.gd` quản lý các bộ waypoints theo `stage_id` (màn 1 đến 4).
+- Triển khai đường đi zíc zắc uốn lượn tự nhiên 6 điểm cho Màn 1 trên khung hình 720x1280 từ đỉnh `(360, 80)` đến căn cứ `(360, 1060)`.
+- Bổ sung `@export var stage_id: int = 1` cho `BattleArena`, tự động đồng bộ bộ waypoints tương ứng và gán cho `WaveManager`, `PathLine` và `BaseView`.
+- Cập nhật `scripts/core/main.gd`: truyền thực tế `stage_id` từ `start_battle(stage_id)` xuống `BattleArena.stage_id`.
+- Cập nhật `scenes/core/battle_arena.tscn`: đồng bộ các điểm `points` của `PathLine` theo 6 toạ độ zíc zắc Màn 1.
+- Mở rộng unit test trong `tests/main_flow_test.gd`: kiểm tra kích thước 6 waypoints, toạ độ đầu/cuối, vị trí `BaseView` và tính năng chuyển đổi đường đi theo `stage_id`.
+
 ## [Main Menu & Boot Routing] - 2026-09-05
 ### Đã thêm
 - Tạo scene `scenes/ui/main_menu.tscn` và script `scripts/ui/main_menu.gd` cho màn hình mở đầu (720x1280): hiển thị tên game "PostApocDefense", nút [BẮT ĐẦU] phát signal `play_pressed` và nút placeholder [CÀI ĐẶT] (disabled).
