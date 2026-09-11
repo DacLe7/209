@@ -414,6 +414,27 @@ func _test_upgrade_choice_overlay_lifecycle(tree: SceneTree) -> void:
 	if tree != null and arena.is_inside_tree():
 		_assert(not tree.paused, "Tree should not remain paused after run_reset.")
 
+	# 4. Kiểm tra trường hợp cạnh: upgrade_choices_ready và run_failed xảy ra đồng thời
+	hero_sys.pending_upgrade_options = mock_options.duplicate(true)
+	hero_sys.upgrade_choices_ready.emit(mock_options)
+	_assert(arena.upgrade_overlay.visible, "Overlay should be visible on upgrade choices.")
+	game_state.run_failed.emit()
+	_assert(not arena.upgrade_overlay.visible, "UpgradeChoiceOverlay must immediately hide when run_failed emits to not block RunResultOverlay.")
+	_assert(arena.result_overlay.visible, "RunResultOverlay should be visible on defeat.")
+
+	# 5. Kiểm tra trường hợp cạnh: upgrade_choices_ready và run_completed xảy ra đồng thời
+	hero_sys.run_reset.emit()
+	hero_sys.pending_upgrade_options = mock_options.duplicate(true)
+	hero_sys.upgrade_choices_ready.emit(mock_options)
+	_assert(arena.upgrade_overlay.visible, "Overlay should be visible on upgrade choices.")
+	game_state.run_completed.emit()
+	_assert(not arena.upgrade_overlay.visible, "UpgradeChoiceOverlay must immediately hide when run_completed emits.")
+	_assert(arena.result_overlay.visible, "RunResultOverlay should be visible on victory.")
+
+	# 6. Kiểm tra không hiện lại overlay nâng cấp khi trận đấu đã kết thúc
+	hero_sys.upgrade_choices_ready.emit(mock_options)
+	_assert(not arena.upgrade_overlay.visible, "UpgradeChoiceOverlay must not show if run is already finished.")
+
 	if tree != null and tree.root != null:
 		tree.root.remove_child(arena)
 	arena.free()

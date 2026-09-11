@@ -9,14 +9,19 @@ var title_label: Label
 var subtitle_label: Label
 
 var hero_system: Node
+var game_state: Node
 var _current_options: Array[Dictionary] = []
+var _is_run_finished: bool = false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_cache_nodes()
-	if is_inside_tree() and hero_system == null:
-		hero_system = get_node_or_null("/root/HeroSystem")
+	if is_inside_tree():
+		if hero_system == null:
+			hero_system = get_node_or_null("/root/HeroSystem")
+		if game_state == null:
+			game_state = get_node_or_null("/root/GameState")
 
 	_connect_signals()
 	visible = false
@@ -46,12 +51,26 @@ func set_hero_system(p_hero_system: Node) -> void:
 	_connect_signals()
 
 
+func set_game_state(p_game_state: Node) -> void:
+	if game_state == p_game_state:
+		return
+	_disconnect_signals()
+	game_state = p_game_state
+	_connect_signals()
+
+
 func _connect_signals() -> void:
 	if hero_system != null:
 		if hero_system.has_signal("upgrade_choices_ready") and not hero_system.upgrade_choices_ready.is_connected(_on_upgrade_choices_ready):
 			hero_system.upgrade_choices_ready.connect(_on_upgrade_choices_ready)
 		if hero_system.has_signal("run_reset") and not hero_system.run_reset.is_connected(_on_run_reset):
 			hero_system.run_reset.connect(_on_run_reset)
+
+	if game_state != null:
+		if game_state.has_signal("run_failed") and not game_state.run_failed.is_connected(_on_run_finished):
+			game_state.run_failed.connect(_on_run_finished)
+		if game_state.has_signal("run_completed") and not game_state.run_completed.is_connected(_on_run_finished):
+			game_state.run_completed.connect(_on_run_finished)
 
 
 func _disconnect_signals() -> void:
@@ -61,12 +80,22 @@ func _disconnect_signals() -> void:
 		if hero_system.has_signal("run_reset") and hero_system.run_reset.is_connected(_on_run_reset):
 			hero_system.run_reset.disconnect(_on_run_reset)
 
+	if game_state != null and is_instance_valid(game_state):
+		if game_state.has_signal("run_failed") and game_state.run_failed.is_connected(_on_run_finished):
+			game_state.run_failed.disconnect(_on_run_finished)
+		if game_state.has_signal("run_completed") and game_state.run_completed.is_connected(_on_run_finished):
+			game_state.run_completed.disconnect(_on_run_finished)
+
 
 func _on_upgrade_choices_ready(options: Array[Dictionary]) -> void:
 	show_choices(options)
 
 
 func show_choices(options: Array[Dictionary]) -> void:
+	if _is_run_finished:
+		hide_overlay()
+		return
+
 	_cache_nodes()
 	_current_options = options
 	_clear_cards()
@@ -91,7 +120,13 @@ func hide_overlay() -> void:
 	_unpause_game()
 
 
+func _on_run_finished() -> void:
+	_is_run_finished = true
+	hide_overlay()
+
+
 func _on_run_reset() -> void:
+	_is_run_finished = false
 	hide_overlay()
 
 

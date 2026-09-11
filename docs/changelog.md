@@ -2,6 +2,13 @@
 
 Tất cả các thay đổi đáng chú ý của dự án sẽ được ghi nhận tại file này.
 
+## [Upgrade Overlay Result Screen Preemption] - 2026-09-11
+### Đã sửa
+- Cập nhật `scripts/ui/upgrade_choice_overlay.gd`: kết nối lắng nghe signal `GameState.run_failed` và `GameState.run_completed`. Khi nhận một trong hai signal kết thúc màn chơi, tự động gọi `hide_overlay()` ngay lập tức để không che khuất `RunResultOverlay` và giải phóng tạm dừng game.
+- Chặn không hiển thị lại overlay nâng cấp hero nếu màn chơi đã kết thúc (`_is_run_finished`).
+- Cập nhật `scripts/core/battle_arena.gd`: inject `game_state` vào cả `UpgradeChoiceOverlay` và `RunResultOverlay`.
+- Bổ sung các bước kiểm thử trong `tests/main_flow_test.gd`: mô phỏng trường hợp `upgrade_choices_ready` phát gần như đồng thời với `run_failed` hoặc `run_completed`, xác nhận `UpgradeChoiceOverlay` tự ẩn tức thời nhường ưu tiên cho màn hình kết quả.
+
 ## [Upgrade Choice Overlay] - 2026-09-10
 ### Đã thêm
 - Tạo scene `scenes/ui/upgrade_choice_overlay.tscn` và script `scripts/ui/upgrade_choice_overlay.gd`: overlay toàn màn hình với nền mờ (`DimBackground`) chặn tương tác, mặc định ẩn, chế độ `process_mode = PROCESS_MODE_ALWAYS`.

@@ -7,9 +7,12 @@ const LEVEL_SYSTEM_SCRIPT: Script = preload("res://scripts/systems/level_system.
 
 func run() -> void:
 	_test_roster_loads_unique_hero_data()
-	_test_level_up_activates_then_upgrades_when_only_one_action_is_possible()
-	_test_active_hero_limit_blocks_additional_activation()
-	_test_reset_run_clears_active_heroes_and_emits_signal()
+	_test_level_up_prepares_options_without_auto_applying()
+	_test_choose_upgrade_applies_selected_action_and_emits_existing_signals()
+	_test_choices_mix_actions_and_respect_available_candidate_count()
+	_test_queued_level_ups_wait_for_each_choice()
+	_test_no_candidates_emit_no_options()
+	_test_invalid_choice_and_reset_clear_pending_state()
 
 
 func _test_roster_loads_unique_hero_data() -> void:
@@ -20,9 +23,27 @@ func _test_roster_loads_unique_hero_data() -> void:
 	hero_system.free()
 
 
-func _test_level_up_activates_then_upgrades_when_only_one_action_is_possible() -> void:
+func _test_level_up_prepares_options_without_auto_applying() -> void:
 	var level_system: Variant = LEVEL_SYSTEM_SCRIPT.new()
 	var hero_system: Variant = _create_hero_system(level_system)
+	hero_system.roster.append(_create_hero_data("alpha", 2))
+	var emitted_options: Array[Array] = []
+	hero_system.upgrade_choices_ready.connect(func(options: Array[Dictionary]) -> void:
+		emitted_options.append(options)
+	)
+
+	level_system.level_up.emit(1)
+	_assert(hero_system.active_heroes.is_empty(), "Level-up should not apply a hero action before the player chooses.")
+	_assert(emitted_options.size() == 1 and emitted_options[0].size() == 1, "One valid candidate should produce one choice card.")
+	var option: Dictionary = emitted_options[0][0]
+	_assert(option["action"] == "activate" and option["hero_id"] == "alpha", "Choice cards should describe the available action and hero.")
+	_assert(option["display_name"] == "Alpha" and option["current_level"] == 0 and option["next_level"] == 1, "Choice cards should expose display and level details for UI.")
+	hero_system.free()
+	level_system.free()
+
+
+func _test_choose_upgrade_applies_selected_action_and_emits_existing_signals() -> void:
+	var hero_system: Variant = _create_hero_system()
 	hero_system.roster.append(_create_hero_data("alpha", 2))
 	var activated_ids: Array[String] = []
 	var upgraded_levels: Array[int] = []
@@ -33,43 +54,77 @@ func _test_level_up_activates_then_upgrades_when_only_one_action_is_possible() -
 		upgraded_levels.append(new_level)
 	)
 
-	level_system.level_up.emit(1)
-	level_system.level_up.emit(2)
-	level_system.level_up.emit(3)
-	_assert(activated_ids == ["alpha"], "A level-up should activate the only available hero.")
-	_assert(upgraded_levels == [2], "The next level-up should upgrade the active hero while it is below max level.")
-	_assert(hero_system.active_heroes["alpha"] == 2, "A maxed hero should not receive more upgrades.")
+	hero_system._on_level_up(1)
+	_assert(hero_system.choose_upgrade(0), "Choosing an activation card should succeed.")
+	_assert(activated_ids == ["alpha"] and hero_system.active_heroes["alpha"] == 1, "Activation choice should update state and emit hero_activated.")
+	hero_system._on_level_up(2)
+	_assert(hero_system.choose_upgrade(0), "Choosing an upgrade card should succeed.")
+	_assert(upgraded_levels == [2] and hero_system.active_heroes["alpha"] == 2, "Upgrade choice should update state and emit hero_upgraded.")
 	hero_system.free()
-	level_system.free()
 
 
-func _test_active_hero_limit_blocks_additional_activation() -> void:
+func _test_choices_mix_actions_and_respect_available_candidate_count() -> void:
 	var hero_system: Variant = _create_hero_system()
-	for hero_index in 5:
-		hero_system.roster.append(_create_hero_data("hero_%d" % (hero_index + 1), 1))
-	hero_system.active_heroes = {"hero_1": 1, "hero_2": 1, "hero_3": 1, "hero_4": 1}
-	var activation_count := [0]
-	hero_system.hero_activated.connect(func(_hero_id: String, _level: int) -> void:
-		activation_count[0] += 1
+	hero_system.roster.append(_create_hero_data("alpha", 2))
+	hero_system.roster.append(_create_hero_data("bravo", 1))
+	hero_system.roster.append(_create_hero_data("charlie", 1))
+	hero_system.active_heroes = {"alpha": 1}
+	var emitted_option_sets: Array[Array] = []
+	hero_system.upgrade_choices_ready.connect(func(options: Array[Dictionary]) -> void:
+		emitted_option_sets.append(options)
 	)
 
 	hero_system._on_level_up(1)
-	_assert(hero_system.active_heroes.size() == 4, "HeroSystem must not activate a fifth hero.")
-	_assert(activation_count[0] == 0, "HeroSystem must not emit activation after all slots are full.")
+	var emitted_options: Array = emitted_option_sets[0]
+	_assert(emitted_options.size() >= 2 and emitted_options.size() <= 3, "Choice generation should offer two or three cards when enough candidates exist.")
+	var actions: Array[String] = []
+	for option in emitted_options:
+		actions.append(option["action"])
+	_assert(actions.has("activate") and actions.has("upgrade"), "Choices should mix activation and upgrade actions when both are available.")
 	hero_system.free()
 
 
-func _test_reset_run_clears_active_heroes_and_emits_signal() -> void:
+func _test_queued_level_ups_wait_for_each_choice() -> void:
 	var hero_system: Variant = _create_hero_system()
-	hero_system.active_heroes = {"alpha": 2, "bravo": 1}
-	var reset_count := [0]
-	hero_system.run_reset.connect(func() -> void:
-		reset_count[0] += 1
+	hero_system.roster.append(_create_hero_data("alpha", 3))
+	var emitted_option_sets: Array[Array] = []
+	hero_system.upgrade_choices_ready.connect(func(options: Array[Dictionary]) -> void:
+		emitted_option_sets.append(options)
 	)
 
+	hero_system._on_level_up(1)
+	hero_system._on_level_up(2)
+	_assert(emitted_option_sets.size() == 1, "A second level-up should queue behind the currently visible choices.")
+	hero_system.choose_upgrade(0)
+	_assert(emitted_option_sets.size() == 2, "Choosing the first set should generate the next queued set.")
+	_assert(emitted_option_sets[1][0]["action"] == "upgrade", "Queued choices should use the state produced by the prior selection.")
+	hero_system.free()
+
+
+func _test_no_candidates_emit_no_options() -> void:
+	var hero_system: Variant = _create_hero_system()
+	for hero_index in 4:
+		hero_system.roster.append(_create_hero_data("hero_%d" % (hero_index + 1), 1))
+	hero_system.active_heroes = {"hero_1": 1, "hero_2": 1, "hero_3": 1, "hero_4": 1}
+	var ready_count := [0]
+	hero_system.upgrade_choices_ready.connect(func(_options: Array[Dictionary]) -> void:
+		ready_count[0] += 1
+	)
+
+	hero_system._on_level_up(1)
+	_assert(ready_count[0] == 0 and hero_system.pending_upgrade_options.is_empty(), "No valid candidate should not emit empty choices.")
+	hero_system.free()
+
+
+func _test_invalid_choice_and_reset_clear_pending_state() -> void:
+	var hero_system: Variant = _create_hero_system()
+	hero_system.roster.append(_create_hero_data("alpha", 2))
+	hero_system._on_level_up(1)
+	_assert(not hero_system.choose_upgrade(1), "Out-of-range option indices should fail.")
+	_assert(not hero_system.choose_upgrade(-1), "Negative option indices should fail.")
 	hero_system.reset_run()
-	_assert(hero_system.active_heroes.is_empty(), "Reset should clear every active hero for a new run.")
-	_assert(reset_count[0] == 1, "Reset should emit run_reset after clearing active heroes.")
+	_assert(hero_system.pending_upgrade_options.is_empty() and hero_system.pending_choice_requests == 0, "Reset should discard visible and queued choices.")
+	_assert(not hero_system.choose_upgrade(0), "Choosing after reset should fail because no choice is pending.")
 	hero_system.free()
 
 
@@ -85,6 +140,7 @@ func _create_hero_system(level_system: Variant = null) -> Variant:
 func _create_hero_data(hero_id: String, max_level_per_run: int) -> HeroData:
 	var hero_data := HeroData.new()
 	hero_data.id = hero_id
+	hero_data.display_name = hero_id.capitalize()
 	hero_data.max_level_per_run = max_level_per_run
 	return hero_data
 

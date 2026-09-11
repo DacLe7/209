@@ -148,12 +148,19 @@ func _setup_path_and_base() -> void:
 
 
 func _connect_signals() -> void:
-	if result_overlay != null and not result_overlay.back_to_map_requested.is_connected(_on_back_to_map_pressed):
-		result_overlay.back_to_map_requested.connect(_on_back_to_map_pressed)
+	if result_overlay != null:
+		if game_state != null and ("game_state" in result_overlay):
+			result_overlay.game_state = game_state
+			if result_overlay.has_method("_connect_signals"):
+				result_overlay._connect_signals()
+		if not result_overlay.back_to_map_requested.is_connected(_on_back_to_map_pressed):
+			result_overlay.back_to_map_requested.connect(_on_back_to_map_pressed)
 
 	if upgrade_overlay != null:
 		if hero_system != null and upgrade_overlay.has_method("set_hero_system"):
 			upgrade_overlay.set_hero_system(hero_system)
+		if game_state != null and upgrade_overlay.has_method("set_game_state"):
+			upgrade_overlay.set_game_state(game_state)
 		if not upgrade_overlay.upgrade_chosen.is_connected(_on_upgrade_chosen):
 			upgrade_overlay.upgrade_chosen.connect(_on_upgrade_chosen)
 
